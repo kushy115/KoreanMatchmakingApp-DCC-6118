@@ -156,37 +156,31 @@ let handleProfileUpdate = (id, native_language, target_language, target_language
         try {
             let userData = {};
             console.log("Updating profile for user ID:", id);
-            // Attempt to update the user profile
-            const [updatedRows] = await db.UserProfile.update(
-                {
-                    native_language: native_language,
-                    target_language: target_language,
-                    target_language_proficiency: target_language_proficiency,
-                    age: age,
-                    gender: gender,
-                    profession: profession,
-                    mbti: mbti,
-                    zodiac: zodiac,
-                    default_time_zone: default_time_zone,
-                    visibility: visibility
-                },
-                {
-                    where: { id: id }
-                }
-            );
-            if (updatedRows === 0) {
-                userData.errCode = 1;
-                userData.errMessage = 'No profile found for the given ID.';
-            } else {
-                userData.errCode = 0;
-                userData.errMessage = 'Profile successfully updated!';
-            }
+ 
+            // upsert: creates the row if it doesn't exist, updates it if it does
+            await db.UserProfile.upsert({
+                id: id,
+                native_language: native_language,
+                target_language: target_language,
+                target_language_proficiency: target_language_proficiency,
+                age: age,
+                gender: gender,
+                profession: profession,
+                mbti: mbti,
+                zodiac: zodiac,
+                default_time_zone: default_time_zone,
+                visibility: visibility
+            });
+ 
+            userData.errCode = 0;
+            userData.errMessage = 'Profile successfully updated!';
             resolve(userData);
         } catch (e) {
             reject(e);
         }
     });
 };
+ 
 
 let handleDataPopulation = (fName, lName, email, pass, native, target, age, gender, proficiency, profession, mbti, zodiac, default_time_zone, visibility) => {
     return new Promise(async (resolve, reject) => {

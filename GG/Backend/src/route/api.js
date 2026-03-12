@@ -13,6 +13,7 @@ import * as aiAssistantController from "../controller/aiAssistantController.js";
 import recordingController from "../controller/recordingController.js"; // Add this
 import { getMeetingsForUser } from "../controller/meetingController.js";
 import fs from "fs";
+import gameRoutes from '../route/gameRoutes.js';
 
 // ES module equivalent of __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -123,7 +124,10 @@ const initAPIRoute = (app) => {
     // Recording route - ADD THIS
     router.post('/upload-recording', upload.single('audio'), recordingController.uploadRecording);
 
+    app.use('/api/games', gameRoutes);
+
     return app.use('/api/v1/', router)
+
 }
 
 export default initAPIRoute;

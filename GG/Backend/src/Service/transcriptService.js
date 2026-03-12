@@ -14,9 +14,8 @@ const __dirname = path.dirname(__filename);
 // Use createRequire to load the native addon (it doesn't support ES modules)
 const require = createRequire(import.meta.url);
 
-const userAgent = navigator.userAgent.toLowerCase();
 const whisperBaseLocation = path.resolve("whisper.cpp");
-const moduleLocation = userAgent.includes("win") ? "build/bin/Release/addon.node.node" : "build/Release/addon.node.node";
+const moduleLocation = "build/bin/Release/addon.node.node";
 const { whisper } = require(
   path.join(whisperBaseLocation, moduleLocation)
 );

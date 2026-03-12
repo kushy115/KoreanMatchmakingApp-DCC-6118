@@ -25,6 +25,7 @@ import AvailabilityPicker from '../Components/AvailabilityPicker';
 import Assistant from "../Components/Assistant";
 import Scheduler from "../Components/Scheduler";
 import TranscriptView from "../Components/TranscriptView";
+import GameSelection from '../Components/GameSelect';
 
 const App = () => {
 
@@ -53,6 +54,7 @@ const App = () => {
           <Route path="/Assistant" element={<Assistant />} />
           <Route path="/Scheduler" element={<Scheduler />} />
           <Route path="/TranscriptView" element={<TranscriptView />} />
+          <Route path="/GameSelection" element={<GameSelection />} />
        </Routes>
       </Router>
 
