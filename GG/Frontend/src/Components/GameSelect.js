@@ -1,11 +1,10 @@
-// GameSelection.js
-// Place in: GG/Frontend/src/Components/GameSelection/GameSelection.js
 
 import { useState, useEffect } from 'react';
 import React from 'react';
 import { createSearchParams, useSearchParams, useNavigate } from 'react-router-dom';
 import './GameSelect.css';
 import { handleGetUserStatsApi } from '../Services/gameSelectionService';
+import Navbar from './NavBar';
 
 const XP_PER_LEVEL = 500; // Must match the value in gameRoutes.js
 
@@ -65,23 +64,23 @@ function GameSelection() {
     );
   };
 
-  const goToTermMatching = () => {
+  const goToGame1 = () => {
     navigate({
-      pathname: '/TermMatching',
+      pathname: '/Game1',
       search: createSearchParams({ id: id }).toString(),
     });
   };
 
-  const goToGrammarQuiz = () => {
+  const goToGame2 = () => {
     navigate({
-      pathname: '/GrammarQuiz',
+      pathname: '/Game2',
       search: createSearchParams({ id: id }).toString(),
     });
   };
 
-  const goToPronunciationDrill = () => {
+  const goToGame3 = () => {
     navigate({
-      pathname: '/PronunciationDrill',
+      pathname: '/Game3',
       search: createSearchParams({ id: id }).toString(),
     });
   };
@@ -96,7 +95,7 @@ function GameSelection() {
 
   return (
     <div className="game-selection-page">
-
+     <Navbar id={id} />
       {/* ── Profile / Level Banner ── */}
       <div className="profile-banner">
         <div className="profile-avatar">{getInitial()}</div>
@@ -133,14 +132,14 @@ function GameSelection() {
 
         {/* Left: Game buttons */}
         <div className="games-column">
-          <button className="game-button" onClick={goToTermMatching}>
-            Term Matching
+          <button className="game-button" onClick={goToGame1}>
+            Game 1
           </button>
-          <button className="game-button" onClick={goToGrammarQuiz}>
-            Grammar Quiz
+          <button className="game-button" onClick={goToGame2}>
+            Game 2
           </button>
-          <button className="game-button" onClick={goToPronunciationDrill}>
-            Pronunciation Drill
+          <button className="game-button" onClick={goToGame3}>
+            Game 3
           </button>
         </div>
 

@@ -1,5 +1,4 @@
-// gameSelectionService.js
-// Place in: GG/Frontend/src/Services/gameSelectionService.js
+
  
 import axios from '../Utils/axios';
  

@@ -1,5 +1,3 @@
-// gameRoutes.js
-// Place in: GG/Backend/src/route/gameRoutes.js
 
 import express from 'express';
 import db from '../models/index.js';
