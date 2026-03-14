@@ -26,6 +26,9 @@ import Assistant from "../Components/Assistant";
 import Scheduler from "../Components/Scheduler";
 import TranscriptView from "../Components/TranscriptView";
 import GameSelection from '../Components/GameSelect';
+import TeamLobby  from '../Components/TeamLobby';
+import TeamCreate from '../Components/TeamCreate';
+import TeamPage   from '../Components/TeamPage';
 
 const App = () => {
 
@@ -55,6 +58,9 @@ const App = () => {
           <Route path="/Scheduler" element={<Scheduler />} />
           <Route path="/TranscriptView" element={<TranscriptView />} />
           <Route path="/GameSelection" element={<GameSelection />} />
+          <Route path="/TeamLobby"  element={<TeamLobby />} />
+          <Route path="/TeamCreate" element={<TeamCreate />} />
+          <Route path="/TeamPage"   element={<TeamPage />} />
        </Routes>
       </Router>
 

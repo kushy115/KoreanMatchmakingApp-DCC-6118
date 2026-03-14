@@ -1,95 +1,78 @@
-
- 
 .navbar {
   width: 60%;
   background-color: white;
   display: flex;
   align-items: center;
-  padding: 0 20px;
-  height: 56px;
+  padding: 0 32px;
+  height: 68px;
   box-sizing: border-box;
   position: sticky;
   top: 0;
   z-index: 1000;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  gap: 16px;
+  gap: 8px;
+  flex-wrap: nowrap;
   font-family: 'HK Sentiments', sans-serif;
 }
  
-/* Brand */
-.navbar-brand {
-  font-family: 'DM Serif Display', serif;
-  font-size: 20px;
-  font-weight: 800;
-  color: #ffffff;
-  cursor: pointer;
-  white-space: nowrap;
-  padding-right: 16px;
-  border-right: 1px solid rgba(255, 255, 255, 0.3);
-}
- 
-.navbar-brand:hover {
-  color: rgba(255, 255, 255, 0.8);
-}
- 
-/* Nav links container */
+/* Nav links — overflow visible, buttons hidden via JS visibility instead */
 .navbar-links {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   flex: 1;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
- 
-.navbar-links::-webkit-scrollbar {
-  display: none;
+  padding-left: 20px;
+  position: relative;
+  overflow: hidden;
 }
  
 /* Individual nav buttons */
-.nav-link {
+.navbar .nav-link {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.85);
+  color: #364659;
   font-size: 13px;
   font-weight: bold;
-  padding: 6px 12px;
+  padding: 8px 16px;
   border-radius: 8px;
   cursor: pointer;
   white-space: nowrap;
+  flex-shrink: 0; /* don't shrink — just let them get clipped */
   box-shadow: none;
-  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
   font-family: 'HK Sentiments', sans-serif;
 }
  
 .nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-  color: #ffffff;
+  background-color: #f3f0fa;
+  color: #6344A6;
+  box-shadow: none;
 }
  
 .nav-link:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #ede9fe;
 }
  
 .nav-link.active {
-  background-color: #6344A6;
+  background-color: #6344a6ad;
   color: #ffffff;
   font-weight: bold;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
  
-/* translator button */
-.navbar-translator {
-  margin-left: auto;
-  flex-shrink: 0;
+/* Right side container — translator always visible, hamburger conditionally */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0; /* never shrink — always visible */
+  padding-left: 8px;
+  padding-right: 8px;
 }
  
-.nav-translator-btn {
-  background-color: #ffffff;
-  color: #6344A6;
+/* Translator button — always shown */
+.navbar .nav-translator-btn {
+  background-color: #6344A6;
+  color: #ffffff;
   border: none;
   border-radius: 8px;
   padding: 8px 16px;
@@ -100,14 +83,105 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   font-family: 'HK Sentiments', sans-serif;
   white-space: nowrap;
+  flex-shrink: 0;
 }
  
-.nav-translator-btn:hover {
+.navbar .nav-translator-btn:hover {
   box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
 }
  
-.nav-translator-btn:active {
+.navbar .nav-translator-btn:active {
   transform: translateY(0);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+ 
+/* Hamburger button — shown by JS when links overflow */
+.navbar-hamburger {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: #f3f0fa;
+  border: none;
+  box-shadow: none;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+}
+ 
+.navbar-hamburger:hover {
+  background-color: #ede9fe;
+  transform: none;
+  box-shadow: none;
+}
+ 
+.hamburger-bar {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background-color: #6344A6;
+  border-radius: 2px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  pointer-events: none;
+}
+ 
+/* Animate bars to X when open */
+.hamburger-open .hamburger-bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger-open .hamburger-bar:nth-child(2) { opacity: 0; }
+.hamburger-open .hamburger-bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+ 
+/* Hamburger wrapper — position relative so dropdown anchors to it */
+.hamburger-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+ 
+/* ── Dropdown menu ── */
+.navbar-dropdown {
+  position: absolute;
+  top: calc(100% + 8px); /* 8px gap below the hamburger button */
+  right: 0;
+  width: 220px;
+  background-color: #ffffff;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  z-index: 1100; /* above navbar */
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  border-radius: 10px;
+  border: 1px solid #ede9fe;
+}
+ 
+.dropdown-link {
+  background: none;
+  border: none;
+  box-shadow: none;
+  text-align: left;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #364659;
+  cursor: pointer;
+  font-family: 'HK Sentiments', sans-serif;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  border-radius: 0;
+  width: 100%;
+}
+ 
+.dropdown-link:hover {
+  background-color: #f3f0fa;
+  color: #6344A6;
+  transform: none;
+  box-shadow: none;
+}
+ 
+.dropdown-link-active {
+  color: #6344A6 !important;
+  background-color: #f3f0fa;
 }
