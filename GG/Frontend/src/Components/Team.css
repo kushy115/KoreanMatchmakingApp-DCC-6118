@@ -543,6 +543,7 @@
  
 .team-section-tab:hover {
   color: #6344A6;
+  background-color: #999;
   transform: none;
   box-shadow: none;
 }
