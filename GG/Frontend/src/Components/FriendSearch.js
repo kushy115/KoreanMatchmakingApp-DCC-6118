@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiUserPlus } from 'react-icons/fi';
-import { DateTime } from "luxon";  
+import { DateTime } from "luxon";
 import Select from "react-select";
 
 import {
@@ -21,76 +21,54 @@ import {
   handleGetUserAvailability,
   handleAddTrueFriend,
 } from '../Services/userService';
+import Navbar from './NavBar';
+
+const MBTI_OPTIONS = [
+  'INTJ','INTP','ENTJ','ENTP',
+  'INFJ','INFP','ENFJ','ENFP',
+  'ISTJ','ISFJ','ESTJ','ESFJ',
+  'ISTP','ISFP','ESTP','ESFP'
+].map(v => ({ value: v, label: v }));
+
+const ZODIAC_OPTIONS = [
+  'Aries','Taurus','Gemini','Cancer','Leo','Virgo',
+  'Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'
+].map(v => ({ value: v, label: v }));
+
+const FILTER_TABS = ['Name', 'MBTI / Zodiac', 'Interests', 'Availability'];
+
+const selectStyles = {
+  container: (base) => ({ ...base, width: '100%' }),
+  control:   (base, state) => ({
+    ...base, minHeight: 38, borderRadius: 8,
+    borderColor: state.isFocused ? '#6344A6' : '#d4d4d8',
+    boxShadow: 'none', fontSize: 13,
+    '&:hover': { borderColor: '#6344A6' }
+  }),
+  multiValue:       (base) => ({ ...base, background: '#ede9fe' }),
+  multiValueLabel:  (base) => ({ ...base, color: '#6344A6', fontSize: 12 }),
+  multiValueRemove: (base) => ({ ...base, color: '#6344A6', ':hover': { background: '#6344A6', color: '#fff' } }),
+  menu: (base) => ({ ...base, zIndex: 5 })
+};
 
 const FriendSearch = () => {
+  const [search] = useSearchParams();
+  const id = search.get('id');
+  const navigate = useNavigate();
+
   const [filterInput, setFilterInput] = useState('');
-  const [preferenceFilterInput, setPreferenceFilterInput] = useState('');
-  const [recentChatPartners, setRecentChatPartners] = useState([]);
   const [userNames, setUserNames] = useState([]);
   const [allUserNames, setAllUserNames] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedUserProfile, setSelectedUserProfile] = useState(null);
-  const [compatibilityScore, setCompatibilityScore] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
-  const navigate = useNavigate();
-  const [search] = useSearchParams();
-  const id = search.get('id');
-  const [userList, setUserList] = useState('');
   const [selectedAvailability, setSelectedAvailability] = useState(null);
   const [allInterests, setAllInterests] = useState([]);
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [selectedMbti, setSelectedMbti] = useState([]);
   const [selectedZodiac, setSelectedZodiac] = useState([]);
-
-  const handleAvailabilityFilter = () => {
-    if (!selectedAvailability || selectedAvailability.length === 0) {
-      setSuccessMessage('Please select availability times first');
-      setTimeout(() => setSuccessMessage(''), 3000);
-      return;
-    }
-
-    try {
-      const selectedSlotsUTC = selectedAvailability.map(slot => {
-        const convertTo24Hr = (timeStr) => {
-          const dt = DateTime.fromFormat(timeStr.trim(), "h a", { zone: currentUser?.default_time_zone || "UTC" });
-          return dt.isValid ? dt.toFormat("HH:mm") : null;
-        };
-        
-        const start = convertTo24Hr(slot.time);
-        const end = DateTime.fromFormat(start, "HH:mm").plus({ hours: 1 }).toFormat("HH:mm");
-        return {
-          day_of_week: slot.day,
-          start_utc: DateTime.fromISO(`2024-01-01T${start}`, { zone: currentUser?.default_time_zone || "UTC" }).toUTC(),
-          end_utc: DateTime.fromISO(`2024-01-01T${end}`, { zone: currentUser?.default_time_zone || "UTC" }).toUTC(),
-        };
-      });
-
-      const filteredUsers = allUserNames.filter(user => {
-        if (!Array.isArray(user.Availability) || user.Availability.length === 0)
-          return false;
-
-        const userZone = user.default_time_zone || "UTC";
-        return user.Availability.some(userSlot => {
-          const userStartUTC = DateTime.fromISO(`2024-01-01T${userSlot.start_time}`, { zone: userZone }).toUTC();
-          const userEndUTC = DateTime.fromISO(`2024-01-01T${userSlot.end_time}`, { zone: userZone }).toUTC();
-
-          return selectedSlotsUTC.some(selSlot =>
-            userSlot.day_of_week === selSlot.day_of_week &&
-            userStartUTC.toISO() === selSlot.start_utc.toISO() &&
-            userEndUTC.toISO() === selSlot.end_utc.toISO()
-          );
-        });
-      });
-      setUserNames(filteredUsers);
-      setSuccessMessage(`Filtered by availability`);
-      setTimeout(() => setSuccessMessage(''), 3000);
-    } catch (error) {
-      setSuccessMessage("Error applying availability filter");
-      setTimeout(() => setSuccessMessage(""), 3000);
-    }
-  };
+  const [activeFilter, setActiveFilter] = useState(0);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -100,47 +78,25 @@ const FriendSearch = () => {
 
         const mergedUsers = await Promise.all(
           userResponse.data.map(async (user) => {
-            const userProfile = profilesResponse.data.find(
-              (profile) => profile.id === user.id
-            );
-        
+            const userProfile = profilesResponse.data.find((p) => p.id === user.id);
             let userInterests = [];
-            try {
-              const interestsResponse = await handleGetUserInterests(user.id);
-              userInterests = interestsResponse || [];
-            } catch {}
-
+            try { const r = await handleGetUserInterests(user.id); userInterests = r || []; } catch {}
             let userAvailability = [];
-            try {
-              const availabilityResponse = await handleGetUserAvailability(user.id);
-              userAvailability = availabilityResponse || [];
-            } catch {}
-        
-            return {
-              ...user,
-              ...userProfile,
-              Interests: userInterests,
-              Availability: userAvailability,
-              score: null,
-            };
+            try { const r = await handleGetUserAvailability(user.id); userAvailability = r || []; } catch {}
+            return { ...user, ...userProfile, Interests: userInterests, Availability: userAvailability, score: null };
           })
         );
 
-        const visibleUsers = mergedUsers.filter((user) => user.visibility === 'Show');
-
+        const visibleUsers = mergedUsers.filter((u) => u.visibility === 'Show');
         setUserNames(visibleUsers);
         setAllUserNames(visibleUsers);
-
-        const currentUserData = getUserData();
-        setCurrentUser(currentUserData);
-
+        setCurrentUser(getUserData());
         setLoading(false);
       } catch (err) {
         setError(err);
         setLoading(false);
       }
     };
-
     fetchUserData();
 
     const fetchInterests = async () => {
@@ -150,23 +106,16 @@ const FriendSearch = () => {
         const names = Array.isArray(raw)
           ? raw.map(i => i?.interest_name ?? i?.name ?? i).filter(Boolean)
           : [];
-        const uniqueSorted = Array.from(new Set(names)).sort((a,b) => a.localeCompare(b));
-        setAllInterests(uniqueSorted);
-      } catch {
-        setAllInterests([]);
-      }
+        setAllInterests(Array.from(new Set(names)).sort((a, b) => a.localeCompare(b)));
+      } catch { setAllInterests([]); }
     };
-
     fetchInterests();
-    
   }, [id]);
 
   useEffect(() => {
     const availabilityParam = search.get('availability');
     if (availabilityParam) {
-      try {
-        setSelectedAvailability(JSON.parse(availabilityParam));
-      } catch {}
+      try { setSelectedAvailability(JSON.parse(availabilityParam)); } catch {}
     }
   }, [search]);
 
@@ -174,433 +123,274 @@ const FriendSearch = () => {
     if (selectedAvailability && selectedAvailability.length > 0 && allUserNames.length > 0) {
       handleAvailabilityFilter();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAvailability, allUserNames]);
+
+  const flash = (msg) => { setSuccessMessage(msg); setTimeout(() => setSuccessMessage(''), 2500); };
 
   const handleQuickAddFriend = async (user) => {
     try {
       await handleAddTrueFriend(Number(id), Number(user.id));
-
-      setSuccessMessage(`Added ${user.firstName} ${user.lastName} to your friends!`);
-      setTimeout(() => setSuccessMessage(''), 2500);
+      flash(`Added ${user.firstName} ${user.lastName} to your friends!`);
     } catch (err) {
       const msg = err?.response?.data?.error || err.message;
-      setSuccessMessage(
-        msg === 'Friendship already exists'
-          ? 'Already friends!'
-          : `Could not add friend: ${msg}`
-      );
-      setTimeout(() => setSuccessMessage(''), 2500);
+      flash(msg === 'Friendship already exists' ? 'Already friends!' : `Could not add friend: ${msg}`);
     }
   };
 
-  const fetchUserProfile = async (userId) => {
-    try {
-      const response = await handleGetUserProfileApi(userId);
-      setSelectedUserProfile(response.data);
-    } catch {}
+  const calculateCompatibilityScore = (profile) => {
+    if (!currentUser || !profile) return 0;
+    const g = 6 * (profile.gender === currentUser.gender ? 1 : 0);
+    const p = 5 * (profile.profession === currentUser.profession ? 1 : 0);
+    const iA = (profile.Interests || []).map(i => i.interest_name || i);
+    const iB = (currentUser.Interests || []).map(i => i.interest_name || i);
+    const shared = iA.filter(n => iB.includes(n));
+    const ageDiff = -0.3 * Math.abs((profile.age || 0) - (currentUser.age || 0));
+    return parseFloat((g + p + 2 * shared.length + ageDiff).toFixed(2));
   };
 
-  const calculateCompatibilityScore = (selectedProfile) => {
-    if (!currentUser || !selectedProfile) return 0;
-
-    const genderScore =
-      6 * (selectedProfile.gender === currentUser.gender ? 1 : 0);
-    const professionScore =
-      5 * (selectedProfile.profession === currentUser.profession ? 1 : 0);
-
-    const interestsA = (selectedProfile.Interests || []).map(i => i.interest_name || i);
-    const interestsB = (currentUser.Interests || []).map(i => i.interest_name || i);
-    const shared = interestsA.filter(n => interestsB.includes(n));
-    const interestsScore = 2 * shared.length;
-
-    const ageDifferenceScore =
-      -0.3 * Math.abs((selectedProfile.age || 0) - (currentUser.age || 0));
-
-    const totalScore =
-      genderScore + professionScore + interestsScore + ageDifferenceScore;
-
-    return parseFloat(totalScore.toFixed(2));
+  const sortByCompatibility = () => {
+    const scored = userNames.map((u) => ({ ...u, score: calculateCompatibilityScore(u) }));
+    setUserNames(scored.sort((a, b) => b.score - a.score));
   };
 
-  const calculateAllCompatibilityScores = () => {
-    const scoredUsers = userNames.map((user) => {
-      const score = calculateCompatibilityScore(user);
-      return { ...user, score };
-    });
-
-    const sortedUsers = scoredUsers.sort((a, b) => b.score - a.score);
-    setUserNames(sortedUsers);
-  };
-
-  const handleNameFilter = () => {
-    const q = filterInput.trim().toLowerCase();
-    if (!q) return setUserNames(allUserNames);
-
-    const filtered = allUserNames.filter(
-      (u) =>
-        u.firstName.toLowerCase().includes(q) ||
-        u.lastName.toLowerCase().includes(q) ||
-        u.email.toLowerCase().includes(q)
-    );
-
-    setUserNames(filtered.length > 0 ? filtered : allUserNames);
-  };
-
-  const handlePreferenceFilter = async () => {
-    const q = preferenceFilterInput.trim().toLowerCase();
-
-    if (!q) return setUserNames(allUserNames);
-
-    try {
-      const preferencesResponse = await handleGetUserPreferencesApi();
-      const preferences = preferencesResponse.data;
-
-      const filteredPreferences = preferences.filter((pref) =>
-        Object.values(pref).some((value) =>
-          String(value).toLowerCase().includes(q)
-        )
-      );
-
-      if (filteredPreferences.length === 0) {
-        setUserNames(allUserNames);
-      } else {
-        const matchedIds = filteredPreferences.map((p) => p.id);
-        const filteredNames = allUserNames.filter((user) =>
-          matchedIds.includes(user.id)
-        );
-        setUserNames(filteredNames.length > 0 ? filteredNames : allUserNames);
-      }
-    } catch {}
-  };
-
-  const handleClearAvailabilityFilter = () => {
-    setSelectedAvailability(null);
-    setUserNames(allUserNames);
-  };
-
-  const handleUserClick = async (user) => {
-    fetchUserProfile(user.id);
-
-    if (!recentChatPartners.some((partner) => partner.id === user.id)) {
-      setRecentChatPartners([...recentChatPartners, user]);
-    }
-  };
-
-  const handleNavigateToAvailabilityPicker = () => {
-    navigate({
-      pathname: '/AvailabilityPicker',
-      search: createSearchParams({ id }).toString(),
-    });
-  };
-
-  const handleBack = () => {
-    navigate({
-      pathname: '/Dashboard',
-      search: createSearchParams({ id }).toString(),
-    });
-  };
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
-
-  const getField = (user, fieldNames) => {
-    for (let field of fieldNames) {
-      if (user[field] !== undefined && user[field] !== null) {
-        return user[field];
-      }
-    }
-    return 'N/A';
-  };
-
-  const MBTI_OPTIONS = [
-    'INTJ','INTP','ENTJ','ENTP',
-    'INFJ','INFP','ENFJ','ENFP',
-    'ISTJ','ISFJ','ESTJ','ESFJ',
-    'ISTP','ISFP','ESTP','ESFP'
-  ];
-  const ZODIAC_OPTIONS = [
-    'Aries','Taurus','Gemini','Cancer','Leo','Virgo',
-    'Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'
-  ];
-
-  const MBTI_OPTIONS_OPT   = MBTI_OPTIONS.map(v => ({ value: v, label: v }));
-  const ZODIAC_OPTIONS_OPT = ZODIAC_OPTIONS.map(v => ({ value: v, label: v }));
-
-  const customSelectStyles = {
-    container: (base) => ({ ...base, width: '100%' }),
-    control:   (base, state) => ({
-      ...base,
-      minHeight: 42,
-      borderRadius: 6,
-      borderColor: state.isFocused ? '#6344A6' : '#ccc',
-      boxShadow: 'none',
-      '&:hover': { borderColor: '#6344A6' }
-    }),
-    multiValue:       (base) => ({ ...base, background: '#ede7f6' }),
-    multiValueLabel:  (base) => ({ ...base, color: '#6344A6' }),
-    multiValueRemove: (base) => ({
-      ...base,
-      color: '#6344A6',
-      ':hover': { background: '#6344A6', color: '#fff' }
-    }),
-    menu: (base) => ({ ...base, zIndex: 5 })
-  };
-
-  const applyPersonalityFilters = () => {
+  const applyFilters = () => {
     let base = allUserNames;
-
     const q = (filterInput || '').trim().toLowerCase();
     if (q) {
       base = base.filter(u =>
         (u.firstName || '').toLowerCase().includes(q) ||
-        (u.lastName  || '').toLowerCase().includes(q) ||
-        (u.email     || '').toLowerCase().includes(q)
+        (u.lastName || '').toLowerCase().includes(q) ||
+        (u.email || '').toLowerCase().includes(q)
       );
     }
-
     if (selectedMbti.length) {
-      const mbtiSet = new Set(selectedMbti.map(v => v.toUpperCase()));
-      base = base.filter(u => mbtiSet.has(String(u.mbti || '').toUpperCase()));
+      const s = new Set(selectedMbti.map(v => v.toUpperCase()));
+      base = base.filter(u => s.has(String(u.mbti || '').toUpperCase()));
     }
-
     if (selectedZodiac.length) {
-      const zSet = new Set(selectedZodiac.map(v => v.toLowerCase()));
-      base = base.filter(u => zSet.has(String(u.zodiac || '').toLowerCase()));
+      const s = new Set(selectedZodiac.map(v => v.toLowerCase()));
+      base = base.filter(u => s.has(String(u.zodiac || '').toLowerCase()));
     }
-
     if (selectedInterests.length) {
       const wanted = new Set(selectedInterests.map(v => v.toLowerCase()));
-
       base = base.filter(u => {
-        const userInterestStrings = [];
-
+        const names = [];
         if (Array.isArray(u.Interests)) {
           for (const it of u.Interests) {
-            const name = (it?.interest_name ?? it)?.toString().toLowerCase();
-            if (name) userInterestStrings.push(name);
+            const n = (it?.interest_name ?? it)?.toString().toLowerCase();
+            if (n) names.push(n);
           }
         }
-
-        const extras = [u.interests, u.interest, u.hobby]
-          .filter(Boolean)
+        [u.interests, u.interest, u.hobby].filter(Boolean)
           .flatMap(v => Array.isArray(v) ? v : [v])
-          .map(v => String(v).toLowerCase());
-
-        userInterestStrings.push(...extras);
-
-        return userInterestStrings.some(s => wanted.has(s));
+          .forEach(v => names.push(String(v).toLowerCase()));
+        return names.some(s => wanted.has(s));
       });
     }
-
     setUserNames(base);
   };
 
-  const clearPersonalityFilters = () => {
+  const clearAll = () => {
+    setFilterInput('');
     setSelectedMbti([]);
     setSelectedZodiac([]);
     setSelectedInterests([]);
+    setSelectedAvailability(null);
     setUserNames(allUserNames);
   };
 
+  const handleAvailabilityFilter = () => {
+    if (!selectedAvailability || selectedAvailability.length === 0) return;
+    try {
+      const selectedSlotsUTC = selectedAvailability.map(slot => {
+        const convertTo24Hr = (timeStr) => {
+          const dt = DateTime.fromFormat(timeStr.trim(), "h a", { zone: currentUser?.default_time_zone || "UTC" });
+          return dt.isValid ? dt.toFormat("HH:mm") : null;
+        };
+        const start = convertTo24Hr(slot.time);
+        const end = DateTime.fromFormat(start, "HH:mm").plus({ hours: 1 }).toFormat("HH:mm");
+        return {
+          day_of_week: slot.day,
+          start_utc: DateTime.fromISO(`2024-01-01T${start}`, { zone: currentUser?.default_time_zone || "UTC" }).toUTC(),
+          end_utc: DateTime.fromISO(`2024-01-01T${end}`, { zone: currentUser?.default_time_zone || "UTC" }).toUTC(),
+        };
+      });
+      const filtered = allUserNames.filter(user => {
+        if (!Array.isArray(user.Availability) || user.Availability.length === 0) return false;
+        const userZone = user.default_time_zone || "UTC";
+        return user.Availability.some(userSlot => {
+          const userStartUTC = DateTime.fromISO(`2024-01-01T${userSlot.start_time}`, { zone: userZone }).toUTC();
+          const userEndUTC = DateTime.fromISO(`2024-01-01T${userSlot.end_time}`, { zone: userZone }).toUTC();
+          return selectedSlotsUTC.some(selSlot =>
+            userSlot.day_of_week === selSlot.day_of_week &&
+            userStartUTC.toISO() === selSlot.start_utc.toISO() &&
+            userEndUTC.toISO() === selSlot.end_utc.toISO()
+          );
+        });
+      });
+      setUserNames(filtered);
+    } catch {}
+  };
+
+  const getField = (user, fields) => {
+    for (let f of fields) { if (user[f] != null) return user[f]; }
+    return null;
+  };
+
+  if (loading) return <div className="fs-page"><Navbar id={id} /><p style={{ textAlign: 'center', marginTop: 60 }}>Loading...</p></div>;
+  if (error) return <div className="fs-page"><Navbar id={id} /><p style={{ textAlign: 'center', marginTop: 60, color: '#dc2626' }}>Error loading users.</p></div>;
+
   return (
-    <div className="friend-search-container">
-      <div className="filter-sidebar">
-        <div className="filter-section">
-          <h3>Filter Users by Name</h3>
-          <input
-            type="text"
-            placeholder="Enter name or email"
-            value={filterInput}
-            onChange={(e) => setFilterInput(e.target.value)}
-          />
-          <button className="filter-btn" onClick={handleNameFilter}>
-            Filter by Name
-          </button>
-        </div>
+    <div className="fs-page">
+      <Navbar id={id} />
 
-        <div className="filter-section">
-          <h3>Filter Users by MBTI & Zodiac</h3>
+      <div className="fs-center">
+        <div className="fs-card">
+          <h1 className="fs-card-title">Find Friends</h1>
+          <p className="fs-card-subtitle">Search and filter to find your perfect language partner</p>
 
-          <div className="two-col">
-            <div>
-              <label className="filter-label">MBTI (multi-select)</label>
-              <Select
-                isMulti
-                options={MBTI_OPTIONS_OPT}
-                value={MBTI_OPTIONS_OPT.filter(o => selectedMbti.includes(o.value))}
-                onChange={(vals) => setSelectedMbti((vals || []).map(v => v.value))}
-                placeholder="Select MBTI types…"
-                styles={customSelectStyles}
-              />
-            </div>
-
-            <div>
-              <label className="filter-label">Zodiac (multi-select)</label>
-              <Select
-                isMulti
-                options={ZODIAC_OPTIONS_OPT}
-                value={ZODIAC_OPTIONS_OPT.filter(o => selectedZodiac.includes(o.value))}
-                onChange={(vals) => setSelectedZodiac((vals || []).map(v => v.value))}
-                placeholder="Select zodiac signs…"
-                styles={customSelectStyles}
-              />
-            </div>
+          {/* Search bar */}
+          <div className="fs-search-row">
+            <input
+              className="fs-input"
+              type="text"
+              placeholder="Search by name or email..."
+              value={filterInput}
+              onChange={(e) => setFilterInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
+            />
+            <button className="fs-btn-primary" onClick={applyFilters}>Search</button>
           </div>
 
-          <div className="btn-row spread">
-            <button className="filter-btn" onClick={applyPersonalityFilters}>
-              Apply Filters
-            </button>
-            <button className="filter-btn" onClick={clearPersonalityFilters}>
-              Clear
-            </button>
-          </div>
-        </div>
-
-        <div className="filter-section">
-          <h3>Filter Users by Interest(s)</h3>
-
-          <label className="filter-label">Interests (multi-select)</label>
-          <Select
-            isMulti
-            options={allInterests.map(n => ({ value: n, label: n }))}
-            value={allInterests
-              .map(n => ({ value: n, label: n }))
-              .filter(o => selectedInterests.includes(o.value))}
-            onChange={(vals) => setSelectedInterests((vals || []).map(v => v.value))}
-            placeholder="Select interests…"
-            styles={customSelectStyles}
-          />
-
-          <div className="btn-row spread" style={{ marginTop: 10 }}>
-            <button
-              className="filter-btn"
-              onClick={applyPersonalityFilters}
-            >
-              Apply Interests
-            </button>
-            <button
-              className="filter-btn"
-              onClick={() => {
-                setSelectedInterests([]);
-                setUserNames(allUserNames);
-              }}
-            >
-              Clear
-            </button>
-          </div>
-        </div>
-
-        <div className="filter-section">
-          <h3>Filter by Availability</h3>
-          <button
-            className="filter-btn availability-btn"
-            onClick={handleNavigateToAvailabilityPicker}
-          >
-            Filter by Availability
-          </button>
-          {selectedAvailability && selectedAvailability.length > 0 && (
-            <div className="availability-display">
-              <p className="availability-label">Selected Times:</p>
-              <div className="availability-slots">
-                {selectedAvailability.map((slot, index) => (
-                  <span key={index} className="availability-slot">
-                    {slot.day} {slot.time}
-                  </span>
-                ))}
-              </div>
-              <button className="clear-availability-btn" onClick={handleClearAvailabilityFilter}>
-                Clear Availability Filter
+          {/* Filter tabs */}
+          <div className="fs-filter-tabs">
+            {FILTER_TABS.map((tab, i) => (
+              <button
+                key={tab}
+                className={`fs-filter-tab ${activeFilter === i ? 'fs-filter-tab-active' : ''}`}
+                onClick={() => setActiveFilter(activeFilter === i ? -1 : i)}
+              >
+                {tab}
               </button>
+            ))}
+          </div>
+
+          {/* MBTI / Zodiac panel */}
+          {activeFilter === 1 && (
+            <div className="fs-filter-panel">
+              <div className="fs-filter-row">
+                <div>
+                  <div className="fs-filter-label">MBTI</div>
+                  <Select isMulti options={MBTI_OPTIONS}
+                    value={MBTI_OPTIONS.filter(o => selectedMbti.includes(o.value))}
+                    onChange={(vals) => setSelectedMbti((vals || []).map(v => v.value))}
+                    placeholder="Select..." styles={selectStyles} />
+                </div>
+                <div>
+                  <div className="fs-filter-label">Zodiac</div>
+                  <Select isMulti options={ZODIAC_OPTIONS}
+                    value={ZODIAC_OPTIONS.filter(o => selectedZodiac.includes(o.value))}
+                    onChange={(vals) => setSelectedZodiac((vals || []).map(v => v.value))}
+                    placeholder="Select..." styles={selectStyles} />
+                </div>
+              </div>
+              <div className="fs-filter-actions">
+                <button className="fs-btn-secondary" onClick={clearAll}>Clear</button>
+                <button className="fs-btn-primary" onClick={applyFilters}>Apply</button>
+              </div>
+            </div>
+          )}
+
+          {/* Interests panel */}
+          {activeFilter === 2 && (
+            <div className="fs-filter-panel">
+              <div className="fs-filter-label">Interests</div>
+              <Select isMulti
+                options={allInterests.map(n => ({ value: n, label: n }))}
+                value={allInterests.map(n => ({ value: n, label: n })).filter(o => selectedInterests.includes(o.value))}
+                onChange={(vals) => setSelectedInterests((vals || []).map(v => v.value))}
+                placeholder="Select interests..." styles={selectStyles} />
+              <div className="fs-filter-actions">
+                <button className="fs-btn-secondary" onClick={() => { setSelectedInterests([]); setUserNames(allUserNames); }}>Clear</button>
+                <button className="fs-btn-primary" onClick={applyFilters}>Apply</button>
+              </div>
+            </div>
+          )}
+
+          {/* Availability panel */}
+          {activeFilter === 3 && (
+            <div className="fs-filter-panel">
+              <button className="fs-btn-primary" style={{ width: '100%' }}
+                onClick={() => navigate({ pathname: '/AvailabilityPicker', search: createSearchParams({ id }).toString() })}>
+                Pick Availability Times
+              </button>
+              {selectedAvailability && selectedAvailability.length > 0 && (
+                <>
+                  <div className="fs-avail-display">
+                    {selectedAvailability.map((slot, i) => (
+                      <span key={i} className="fs-avail-slot">{slot.day} {slot.time}</span>
+                    ))}
+                  </div>
+                  <button className="fs-btn-secondary" style={{ width: '100%' }}
+                    onClick={() => { setSelectedAvailability(null); setUserNames(allUserNames); }}>
+                    Clear Availability
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>
-        <button className="btn-back" onClick={handleBack}>
-          Back
-        </button>
-      </div>
 
-      <div className="friend-search">
-        <div className="fs-top-bar">
-          <h1>Find Friends</h1>
-          <button className="calculate-score-btn" onClick={calculateAllCompatibilityScores}>
-            Sort by Compatibility
-          </button>
-        </div>
-
-        <div className="fs-card-grid">
-          {userNames.map((user, index) => (
-            <div key={index} className="fs-user-card" onClick={() => handleUserClick(user)}>
-              <div className="fs-card-header">
-                <div className="fs-avatar">
-                  {user.firstName ? user.firstName.charAt(0).toUpperCase() : '?'}
-                </div>
-                <div className="fs-card-name-block">
-                  <div className="fs-card-name">{user.firstName} {user.lastName}</div>
-                  <div className="fs-card-meta">{user.profession || ''} {user.age ? `· ${user.age}` : ''}</div>
-                </div>
-                <button
-                  className="fs-add-btn"
-                  title="Add friend"
-                  onClick={(e) => { e.stopPropagation(); handleQuickAddFriend(user); }}
-                >
-                  <FiUserPlus size={18} />
-                </button>
-              </div>
-
-              <div className="fs-card-body">
-                <div className="fs-card-row">
-                  <span className="fs-card-label">Languages</span>
-                  <span>{getField(user, ["nativeLanguage", "native_language"])} → {getField(user, ["targetLanguage", "target_language"])}</span>
-                </div>
-                {user.mbti && (
-                  <div className="fs-card-row">
-                    <span className="fs-card-label">MBTI</span>
-                    <span className="fs-tag">{user.mbti}</span>
-                  </div>
-                )}
-                {user.zodiac && (
-                  <div className="fs-card-row">
-                    <span className="fs-card-label">Zodiac</span>
-                    <span className="fs-tag">{user.zodiac}</span>
-                  </div>
-                )}
-                {user.learning_goal && (
-                  <div className="fs-card-row">
-                    <span className="fs-card-label">Goal</span>
-                    <span>{user.learning_goal}</span>
-                  </div>
-                )}
-                {Array.isArray(user.Interests) && user.Interests.length > 0 && (
-                  <div className="fs-card-interests">
-                    {user.Interests.slice(0, 4).map((interest, i) => (
-                      <span key={i} className="fs-interest-chip">{interest.interest_name || interest}</span>
-                    ))}
-                    {user.Interests.length > 4 && <span className="fs-interest-chip">+{user.Interests.length - 4}</span>}
-                  </div>
-                )}
-              </div>
-
-              {user.score !== null && user.score !== undefined && (
-                <div className="fs-card-footer">
-                  <span className="fs-score-label">Compatibility</span>
-                  <span className="fs-score-val">{user.score}</span>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {userNames.length === 0 && (
-          <p style={{ textAlign: 'center', color: '#888', marginTop: 40 }}>No users match your filters.</p>
-        )}
-
-        {successMessage && (
-          <div className="success-message">
-            <p>{successMessage}</p>
+        {/* Results card */}
+        <div className="fs-card">
+          <div className="fs-results-header">
+            <span className="fs-results-count">{userNames.length} user{userNames.length !== 1 ? 's' : ''} found</span>
+            <button className="fs-btn-secondary" onClick={sortByCompatibility}>Sort by Compatibility</button>
           </div>
-        )}
+
+          {userNames.length === 0 ? (
+            <p className="fs-empty">No users match your filters.</p>
+          ) : (
+            <div className="fs-results-list">
+              {userNames.map((user, i) => (
+                <div key={i} className="fs-user-row">
+                  <div className="fs-avatar">
+                    {user.firstName ? user.firstName.charAt(0).toUpperCase() : '?'}
+                  </div>
+
+                  <div className="fs-user-info">
+                    <div className="fs-user-name">{user.firstName} {user.lastName}</div>
+                    <div className="fs-user-meta">
+                      {user.profession && <span>{user.profession}</span>}
+                      {user.age && <span>Age {user.age}</span>}
+                      {getField(user, ["nativeLanguage", "native_language"]) && (
+                        <span>{getField(user, ["nativeLanguage", "native_language"])} → {getField(user, ["targetLanguage", "target_language"])}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="fs-user-tags">
+                    {user.mbti && <span className="fs-tag">{user.mbti}</span>}
+                    {user.zodiac && <span className="fs-tag">{user.zodiac}</span>}
+                  </div>
+
+                  {user.score !== null && user.score !== undefined && (
+                    <span className="fs-score-pill">{user.score}</span>
+                  )}
+
+                  <button className="fs-add-btn" title="Add friend"
+                    onClick={(e) => { e.stopPropagation(); handleQuickAddFriend(user); }}>
+                    <FiUserPlus size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+
+      {successMessage && <div className="fs-toast">{successMessage}</div>}
     </div>
   );
 };

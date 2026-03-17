@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import Button from 'react-bootstrap/Button';
 import './FriendsList.css';
 import { useNavigate, createSearchParams, useSearchParams } from "react-router-dom";
-import { handleGetFriendsList,handleGetTrueFriendsList, handleRemoveTrueFriend, handleAddToFriendsList } from '../Services/userService'; // Import your API handler
+import { handleGetTrueFriendsList, handleRemoveTrueFriend } from '../Services/userService';
+import Navbar from './NavBar';
 
 const FriendsList = () => {
   const [friends, setFriends] = useState([]);
@@ -11,80 +11,58 @@ const FriendsList = () => {
   const id = search.get("id");
 
   useEffect(() => {
-    // Retrieve friends from localStorage
-    const storedFriends = JSON.parse(localStorage.getItem('friendsList')) || [];
-    //setFriends(storedFriends);
-    console.log("Friends loaded from localStorage:", storedFriends);
-  }, []);
-
-  // Second useEffect: Fetch friends from the database
-  useEffect(() => {
-  const fetchFriends = async () => {
-    try {
-      console.log('FriendsList: id=', id);
-      const payload = await handleGetTrueFriendsList(id);
-      console.log('FriendsList payload:', payload); // expect { friendsList: [...] }
-      setFriends(Array.isArray(payload?.friendsList) ? payload.friendsList : []);
-    } catch (err) {
-      console.error('Failed to fetch friends:', err);
-      setFriends([]);
-    }
-  };
-  if (id) fetchFriends();
-}, [id]); // Dependencies: id and friends state
+    const fetchFriends = async () => {
+      try {
+        const payload = await handleGetTrueFriendsList(id);
+        setFriends(Array.isArray(payload?.friendsList) ? payload.friendsList : []);
+      } catch (err) {
+        console.error('Failed to fetch friends:', err);
+        setFriends([]);
+      }
+    };
+    if (id) fetchFriends();
+  }, [id]);
 
   const onRemoveFriend = async (friend) => {
-    const currentUserId = Number(id);         // your user id from query string
-  const targetUserId  = Number(friend.id);  // the friend’s id
-
-  // Optimistic UI update (optional)
-  setFriends(prev => prev.filter(f => f.id !== targetUserId));
-
-  try {
-    const res = await handleRemoveTrueFriend(currentUserId, targetUserId);
-    console.log('removeTrueFriend:', res?.message || res);
-  } catch (err) {
-    console.error('removeTrueFriend failed:', err);
-    // roll back optimistic update if you want:
-    // setFriends(prev => [...prev, friend]);
-  }
-};
+    const currentUserId = Number(id);
+    const targetUserId = Number(friend.id);
+    setFriends(prev => prev.filter(f => f.id !== targetUserId));
+    try {
+      await handleRemoveTrueFriend(currentUserId, targetUserId);
+    } catch (err) {
+      console.error('removeTrueFriend failed:', err);
+    }
+  };
 
   const handleBack = () => {
-    navigate({
-      pathname: "/Dashboard", // Navigate back to the dashboard
-      search: createSearchParams({ id: id }).toString(),
-    });
+    navigate({ pathname: "/Dashboard", search: createSearchParams({ id }).toString() });
   };
 
   return (
-    <div className="screen-Background">
-      <div className="friends-list-container">
-        <h2>Your Friends List</h2>
-        <p className="instructions">Please Click on a User to Remove them from Friends List</p>
-        {friends.length === 0 ? (
-          <p className="no-friends-message">No friends added yet.</p>
-        ) : (
-          <div className="friends-list">
-            {friends.map(friend => (
-              <div
-                key={friend.id} // Ensure each item has a unique key
-                className="friend-chip"
-                onClick={() => {
-                  onRemoveFriend(friend); // Pass them to the removeFriend function
-                }}
-              >
-                {friend.firstName} {friend.lastName}
-                <span className="remove-icon">×</span>
-              </div>
-            ))}
-          </div>
-        )}
-        {/* Back Button */}
-        <div className="button-container">
-          <button className="btn-back-02" onClick={handleBack}>
-            Back
-          </button>
+    <div className="fl-page">
+      <Navbar id={id} />
+      <div className="fl-center">
+        <div className="fl-card">
+          <h2 className="fl-title">Friends List</h2>
+          <p className="fl-subtitle">Click a friend to remove them</p>
+
+          {friends.length === 0 ? (
+            <p className="fl-empty">No friends added yet.</p>
+          ) : (
+            <div className="fl-list">
+              {friends.map(friend => (
+                <div key={friend.id} className="fl-friend-row" onClick={() => onRemoveFriend(friend)}>
+                  <div className="fl-avatar">
+                    {(friend.firstName || '?')[0].toUpperCase()}
+                  </div>
+                  <span className="fl-name">{friend.firstName} {friend.lastName}</span>
+                  <span className="fl-remove-icon">&times;</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button className="fl-back-btn" onClick={handleBack}>Back to Dashboard</button>
         </div>
       </div>
     </div>

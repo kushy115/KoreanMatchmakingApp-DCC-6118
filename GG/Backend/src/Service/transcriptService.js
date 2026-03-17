@@ -14,12 +14,17 @@ const __dirname = path.dirname(__filename);
 // Use createRequire to load the native addon (it doesn't support ES modules)
 const require = createRequire(import.meta.url);
 
-const whisperBaseLocation = path.resolve("whisper.cpp");
-const moduleLocation = "build/bin/Release/addon.node.node";
-const { whisper } = require(
-  path.join(whisperBaseLocation, moduleLocation)
-);
-const whisperAsync = promisify(whisper);
+let whisperAsync = null;
+try {
+  const whisperBaseLocation = path.resolve("whisper.cpp");
+  const moduleLocation = "build/bin/Release/addon.node.node";
+  const { whisper } = require(
+    path.join(whisperBaseLocation, moduleLocation)
+  );
+  whisperAsync = promisify(whisper);
+} catch (err) {
+  console.warn("Whisper native module not found — transcript generation will be unavailable.", err.message);
+}
 
 function convertToWav(inputPath, outputPath) {
     return new Promise((resolve, reject) => {

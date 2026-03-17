@@ -47,36 +47,42 @@ export async function syncBadgeDefinitions() {
 }
 
 async function getUserStat(userId, criteriaType) {
-  const { Op } = await import('sequelize');
+  try {
+    const { Op } = await import('sequelize');
 
-  switch (criteriaType) {
-    case 'games_played':
-    case 'term_matching_played':
-    case 'grammar_quiz_played':
-    case 'pronunciation_played':
-    case 'perfect_score': {
-      const user = await db.UserAccount.findByPk(userId);
-      if (!user) return 0;
-      const stats = user.gameStats ? (typeof user.gameStats === 'string' ? JSON.parse(user.gameStats) : user.gameStats) : {};
-      return stats[criteriaType] || 0;
+    switch (criteriaType) {
+      case 'games_played':
+      case 'term_matching_played':
+      case 'grammar_quiz_played':
+      case 'pronunciation_played':
+      case 'perfect_score': {
+        const user = await db.UserAccount.findByPk(userId);
+        if (!user) return 0;
+        const stats = user.gameStats ? (typeof user.gameStats === 'string' ? JSON.parse(user.gameStats) : user.gameStats) : {};
+        return stats[criteriaType] || 0;
+      }
+
+      case 'level_reached': {
+        const user = await db.UserAccount.findByPk(userId);
+        return user ? (user.level || 1) : 0;
+      }
+
+      case 'friends_count': {
+        if (!db.FriendsModel) return 0;
+        return await db.FriendsModel.count({ where: { [Op.or]: [{ user1_ID: userId }, { user2_ID: userId }] } });
+      }
+
+      case 'quests_completed': {
+        if (!db.UserQuestProgress) return 0;
+        return await db.UserQuestProgress.count({ where: { userId, completed: true } });
+      }
+
+      default:
+        return 0;
     }
-
-    case 'level_reached': {
-      const user = await db.UserAccount.findByPk(userId);
-      return user ? (user.level || 1) : 0;
-    }
-
-    case 'friends_count': {
-      if (!db.FriendsModel) return 0;
-      return await db.FriendsModel.count({ where: { [Op.or]: [{ user1Id: userId }, { user2Id: userId }] } });
-    }
-
-    case 'quests_completed': {
-      return await db.UserQuestProgress.count({ where: { userId, completed: true } });
-    }
-
-    default:
-      return 0;
+  } catch (err) {
+    console.warn(`getUserStat(${criteriaType}) failed:`, err.message);
+    return 0;
   }
 }
 

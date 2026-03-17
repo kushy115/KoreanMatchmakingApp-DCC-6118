@@ -45,41 +45,47 @@ async function awardXp(userId, xpAmount) {
 }
 
 async function incrementQuests(userId, gameType) {
-  const { Op } = await import('sequelize');
-  const quests = await db.Quest.findAll({
-    where: {
-      isActive: true,
-      type: 'individual',
-      gameType: { [Op.or]: [gameType, null] },
-    },
-  });
-
-  const updated = [];
-  for (const quest of quests) {
-    const [progress] = await db.UserQuestProgress.findOrCreate({
-      where: { userId, questId: quest.id },
-      defaults: { progress: 0, completed: false, lastResetAt: new Date() },
+  try {
+    if (!db.Quest || !db.UserQuestProgress) return [];
+    const { Op } = await import('sequelize');
+    const quests = await db.Quest.findAll({
+      where: {
+        isActive: true,
+        type: 'individual',
+        gameType: { [Op.or]: [gameType, null] },
+      },
     });
 
-    if (progress.completed && quest.resetType === 'permanent') continue;
+    const updated = [];
+    for (const quest of quests) {
+      const [progress] = await db.UserQuestProgress.findOrCreate({
+        where: { userId, questId: quest.id },
+        defaults: { progress: 0, completed: false, lastResetAt: new Date() },
+      });
 
-    const newProgress = progress.progress + 1;
-    const nowComplete = newProgress >= quest.goal;
+      if (progress.completed && quest.resetType === 'permanent') continue;
 
-    await progress.update({
-      progress: newProgress,
-      completed: nowComplete,
-      completedAt: nowComplete && !progress.completed ? new Date() : progress.completedAt,
-    });
+      const newProgress = progress.progress + 1;
+      const nowComplete = newProgress >= quest.goal;
 
-    if (nowComplete && !progress.completed) {
-      await awardXp(userId, quest.xpReward);
+      await progress.update({
+        progress: newProgress,
+        completed: nowComplete,
+        completedAt: nowComplete && !progress.completed ? new Date() : progress.completedAt,
+      });
+
+      if (nowComplete && !progress.completed) {
+        await awardXp(userId, quest.xpReward);
+      }
+
+      updated.push({ questId: quest.id, progress: newProgress, completed: nowComplete });
     }
 
-    updated.push({ questId: quest.id, progress: newProgress, completed: nowComplete });
+    return updated;
+  } catch (err) {
+    console.warn('incrementQuests failed (non-fatal):', err.message);
+    return [];
   }
-
-  return updated;
 }
 
 async function saveGameSession(userId, gameType, difficulty, result, challengeId = null) {

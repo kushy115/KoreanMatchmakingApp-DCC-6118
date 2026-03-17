@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import React from "react";
-import './Registration.css';
 import './UpdateProfile.css';
 import Select from "react-select";
 import ProfileImageSection from './ProfileImageSection';
+import Navbar from './NavBar';
 
 import {
   handleProfileUpdateAPI,
@@ -19,6 +19,11 @@ import { handleGetUserStatsApi } from '../Services/gameSelectionService';
 import { handleGetUserBadgesApi } from '../Services/badgeService';
 import { getChallengeStats } from '../Services/challengeService';
 import { createSearchParams, useNavigate, useSearchParams } from "react-router-dom";
+
+const selectStyles = {
+  control: (base) => ({ ...base, borderRadius: 6, borderColor: '#d4d4d8', fontSize: 14, fontFamily: "'HK Sentiments', sans-serif" }),
+  option: (base) => ({ ...base, fontSize: 14, fontFamily: "'HK Sentiments', sans-serif" }),
+};
 
 function UpdateProfile() {
   const [nativeLanguage, setNativeLanguage] = useState('');
@@ -44,7 +49,10 @@ function UpdateProfile() {
   const [errMsg, setErrMsg] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(false);
-  const [dataLoaded, setDataLoaded] = useState(false); // prevents flash of empty form
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const [step, setStep] = useState(0);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showStats, setShowStats] = useState(false);
 
   const [search] = useSearchParams();
   const id = search.get("id");
@@ -73,11 +81,11 @@ function UpdateProfile() {
     { value: "Aquarius", label: "Aquarius" }, { value: "Pisces", label: "Pisces" },
   ];
   const TimeZones = [
-    { value: "UTC", label: "UTC" }, { value: "America/New_York", label: "America/New_York" },
-    { value: "America/Chicago", label: "America/Chicago" }, { value: "America/Denver", label: "America/Denver" },
-    { value: "America/Los_Angeles", label: "America/Los_Angeles" }, { value: "Europe/London", label: "Europe/London" },
-    { value: "Europe/Paris", label: "Europe/Paris" }, { value: "Asia/Seoul", label: "Asia/Seoul" },
-    { value: "Asia/Tokyo", label: "Asia/Tokyo" },
+    { value: "UTC", label: "UTC" }, { value: "America/New_York", label: "Eastern (New York)" },
+    { value: "America/Chicago", label: "Central (Chicago)" }, { value: "America/Denver", label: "Mountain (Denver)" },
+    { value: "America/Los_Angeles", label: "Pacific (LA)" }, { value: "Europe/London", label: "London" },
+    { value: "Europe/Paris", label: "Paris" }, { value: "Asia/Seoul", label: "Seoul" },
+    { value: "Asia/Tokyo", label: "Tokyo" },
   ];
   const MBTI = [
     { value: "INTJ", label: "INTJ" }, { value: "INTP", label: "INTP" },
@@ -120,13 +128,11 @@ function UpdateProfile() {
   const availabilityOptions = days.flatMap(generateHourlySlots);
   const pickSingle = (options, value) => options.find(o => o.value === value) || null;
 
-  // ── Load ALL existing data in one effect ──
   useEffect(() => {
     if (!id) return;
 
     const loadAllData = async () => {
       try {
-        // Run all fetches in parallel
         const [profileRes, userStatsRes, interestsAllRes, interestsUserRes, availabilityRes] = await Promise.allSettled([
           handleGetUserProfileApi(id),
           handleGetUserStatsApi(id),
@@ -135,7 +141,6 @@ function UpdateProfile() {
           handleGetUserAvailability(id),
         ]);
 
-        // ── Profile fields ──
         if (profileRes.status === 'fulfilled') {
           const raw = profileRes.value;
           const profile = raw?.data ?? raw;
@@ -154,8 +159,6 @@ function UpdateProfile() {
             if (profile.communication_style)          setCommunicationStyle(profile.communication_style);
             if (profile.commitment_level)             setCommitmentLevel(profile.commitment_level);
           }
-        } else {
-          console.log('Profile fetch failed (may not exist yet):', profileRes.reason);
         }
 
         if (userStatsRes.status === 'fulfilled') {
@@ -172,21 +175,18 @@ function UpdateProfile() {
           if (challengeStatsRes.status === 'fulfilled') setChallengeStats(challengeStatsRes.value);
         } catch {}
 
-        // ── All available interests (for dropdown options) ──
         if (interestsAllRes.status === 'fulfilled') {
           const raw = interestsAllRes.value;
           const arr = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw) ? raw : [];
           setAllInterests(arr.map(i => ({ value: i.id, label: i.interest_name })));
         }
 
-        // ── User's selected interests ──
         if (interestsUserRes.status === 'fulfilled') {
           const raw = interestsUserRes.value;
           const arr = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw) ? raw : [];
           setSelectedInterests(arr.map(i => ({ value: i.id, label: i.interest_name })));
         }
 
-        // ── User's availability ──
         if (availabilityRes.status === 'fulfilled') {
           const raw = availabilityRes.value;
           const slots = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw) ? raw : [];
@@ -202,7 +202,6 @@ function UpdateProfile() {
             };
           }));
         }
-
       } catch (err) {
         console.error('Unexpected error loading profile data:', err);
       } finally {
@@ -236,161 +235,242 @@ function UpdateProfile() {
     navigate({ pathname: "/Dashboard", search: createSearchParams({ id }).toString() });
   };
 
+  const STEPS = [
+    { title: 'Basics', subtitle: 'Pick your languages + level' },
+    { title: 'About you', subtitle: 'A few quick details' },
+    { title: 'Schedule', subtitle: 'Timezone + when you’re free' },
+    { title: 'Style', subtitle: 'How you like to learn' },
+  ];
+
+  const nextStep = () => setStep(s => Math.min(s + 1, STEPS.length - 1));
+  const prevStep = () => setStep(s => Math.max(s - 1, 0));
+  const progressPct = Math.round(((step + 1) / STEPS.length) * 100);
+
   if (!dataLoaded) {
     return (
-      <div className="set-profile-wrapper">
-        <div className="set-profile-card">
-          <p style={{ textAlign: 'center', color: '#364659', fontFamily: 'DM Serif Display, serif', fontSize: 20 }}>
-            Loading your profile...
-          </p>
+      <div className="up-page">
+        <Navbar id={id} />
+        <div className="up-center">
+          <div className="up-card" style={{ textAlign: 'center', padding: 60 }}>
+            <p style={{ color: '#364659', fontFamily: 'DM Serif Display, serif', fontSize: 18 }}>Loading your profile...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="set-profile-wrapper">
-      <div className="set-profile-card">
-        <h1>Set Profile</h1>
-        <h6>(* indicates required fields)</h6>
-        <div className="messages">
-          {error    && <div className="error"><h1>enter required fields</h1></div>}
-          {submitted && <div className="success"><h1>Updated</h1></div>}
-          {errMsg   && <div className="error"><h1>{errMsg}</h1></div>}
-        </div>
-        <form className="set-profile-form">
-
-          {/* ── Profile Image ── */}
-          <div className='form-group'>
-            <ProfileImageSection id={id} currentImage={profileImage} onImageChange={(path) => setProfileImage(path)} />
-          </div>
-
-          <div className='form-group'>
-            <label className="label">Native Language*</label>
-            <Select options={NativeLanguage} onChange={s => setNativeLanguage(s?.value ?? '')} value={pickSingle(NativeLanguage, nativeLanguage)} />
-          </div>
-          <div className='form-group'>
-            <label className="label">Target Language*</label>
-            <Select options={TargetLanguage} onChange={s => setTargetLanguage(s?.value ?? '')} value={pickSingle(TargetLanguage, targetLanguage)} />
-          </div>
-          <div className='form-group'>
-            <label className="label">Level of Target Language*</label>
-            <Select options={TargetLanguageProficiency} onChange={s => setTargetLanguageProficiency(s?.value ?? '')} value={pickSingle(TargetLanguageProficiency, targetLanguageProficiency)} />
-          </div>
-          <div className='form-group'>
-            <label className="label">Age*</label>
-            <input placeholder="Enter Age" onChange={e => setAge(e.target.value)} className="input" type="text" value={age} />
-          </div>
-          <div className='form-group'>
-            <label className="label">Gender</label>
-            <Select options={Gender} onChange={s => setGender(s?.value ?? '')} value={pickSingle(Gender, gender)} />
-          </div>
-          <div className='form-group'>
-            <label className="label">Profession*</label>
-            <Select options={Profession} onChange={s => setProfession(s?.value ?? '')} value={pickSingle(Profession, profession)} />
-          </div>
-          <div className='form-group'>
-            <label className="label">Personality Type</label>
-            <Select options={MBTI} onChange={s => setMBTI(s?.value ?? '')} value={pickSingle(MBTI, mbti)} />
-          </div>
-          <div className='form-group'>
-            <label className="label">Zodiac</label>
-            <Select options={Zodiac} onChange={s => setZodiac(s?.value ?? '')} value={pickSingle(Zodiac, zodiac)} />
-          </div>
-          <div className='form-group'>
-            <label className="label">Interests</label>
-            <Select isMulti options={allInterests} onChange={s => setSelectedInterests(s || [])} value={selectedInterests} />
-          </div>
-          <div className='form-group'>
-            <label className="label">Default Time Zone</label>
-            <Select options={TimeZones} onChange={s => setDefaultTimeZone(s?.value ?? '')} value={pickSingle(TimeZones, defaultTimeZone)} />
-          </div>
-          <div className='form-group'>
-            <label className="label">Availability</label>
-            <Select isMulti options={availabilityOptions} value={availability} onChange={s => setAvailability(s || [])} />
-          </div>
-          <div className='form-group'>
-            <label className="label">Visibility</label>
-            <Select options={VisibilityOptions} onChange={s => setVisibility(s?.value ?? '')} value={pickSingle(VisibilityOptions, visibility)} />
-          </div>
-
-          <hr style={{ margin: '20px 0', borderColor: '#e9e4f5' }} />
-          <h3 style={{ color: '#6344A6', fontFamily: 'DM Serif Display, serif' }}>Learning Preferences</h3>
-
-          <div className='form-group'>
-            <label className="label">Learning Goal</label>
-            <Select options={LearningGoalOptions} onChange={s => setLearningGoal(s?.value ?? '')} value={pickSingle(LearningGoalOptions, learningGoal)} />
-          </div>
-          <div className='form-group'>
-            <label className="label">Communication Style</label>
-            <Select options={CommunicationStyleOptions} onChange={s => setCommunicationStyle(s?.value ?? '')} value={pickSingle(CommunicationStyleOptions, communicationStyle)} />
-          </div>
-          <div className='form-group'>
-            <label className="label">Commitment Level (1-5)</label>
-            <div className="commitment-stars">
-              {[1, 2, 3, 4, 5].map(n => (
-                <span
-                  key={n}
-                  className={`star ${n <= commitmentLevel ? 'star-active' : ''}`}
-                  onClick={() => setCommitmentLevel(n)}
-                  style={{ cursor: 'pointer', fontSize: 28, color: n <= commitmentLevel ? '#f59e0b' : '#ddd', marginRight: 4 }}
-                >
-                  ★
-                </span>
-              ))}
+    <div className="up-page">
+      <Navbar id={id} />
+      <div className="up-center">
+        <div className="up-card">
+          <div className="up-header">
+            <div>
+              <h1 className="up-title">Set Profile</h1>
+              <p className="up-subtitle">Quick setup — you can always edit later.</p>
+            </div>
+            <div className="up-progress">
+              <div className="up-progress-top">
+                <span className="up-progress-step">{STEPS[step].title}</span>
+                <span className="up-progress-pct">{progressPct}%</span>
+              </div>
+              <div className="up-progress-track">
+                <div className="up-progress-fill" style={{ width: `${progressPct}%` }} />
+              </div>
+              <div className="up-progress-sub">{STEPS[step].subtitle}</div>
             </div>
           </div>
 
-          {(userStats || badges.length > 0 || challengeStats) && (
-            <>
-              <hr style={{ margin: '20px 0', borderColor: '#e9e4f5' }} />
-              <h3 style={{ color: '#6344A6', fontFamily: 'DM Serif Display, serif' }}>Your Stats</h3>
-
-              {userStats && (
-                <div className="profile-stats-grid">
-                  <div className="profile-stat-card">
-                    <div className="profile-stat-val">{userStats.level || 1}</div>
-                    <div className="profile-stat-label">Level</div>
-                  </div>
-                  <div className="profile-stat-card">
-                    <div className="profile-stat-val">{userStats.xp || 0}</div>
-                    <div className="profile-stat-label">XP</div>
-                  </div>
-                  {challengeStats && (
-                    <>
-                      <div className="profile-stat-card">
-                        <div className="profile-stat-val">{challengeStats.wins || 0}</div>
-                        <div className="profile-stat-label">Challenge Wins</div>
-                      </div>
-                      <div className="profile-stat-card">
-                        <div className="profile-stat-val">{challengeStats.winRate || 0}%</div>
-                        <div className="profile-stat-label">Win Rate</div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-
-              {badges.length > 0 && (
-                <div className="profile-badges">
-                  <h4 style={{ color: '#364659', margin: '12px 0 8px' }}>Badges Earned</h4>
-                  <div className="profile-badge-list">
-                    {badges.map(b => (
-                      <span key={b.id} className="profile-badge-chip" title={b.description}>
-                        {b.icon} {b.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-
-          <div className="profile-buttons">
-            <button className="btn-back-02" type="button" onClick={handleSubmit}>Update Profile</button>
-            <button className="btn-back-02" type="button" onClick={handleBack}>Back</button>
+          <div className="up-messages">
+            {error && <div className="up-error">Please enter all required fields.</div>}
+            {submitted && !errMsg && <div className="up-success">Profile updated successfully!</div>}
+            {errMsg && <div className="up-error">{errMsg}</div>}
           </div>
-        </form>
+
+          <form className="up-form" onSubmit={handleSubmit}>
+
+            <div className="up-group">
+              <ProfileImageSection id={id} currentImage={profileImage} onImageChange={(path) => setProfileImage(path)} />
+            </div>
+
+            {/* Step content */}
+            {step === 0 && (
+              <div className="up-step">
+                <div className="up-step-grid">
+                  <div className="up-group">
+                    <label className="up-label">Native Language *</label>
+                    <Select styles={selectStyles} options={NativeLanguage} onChange={s => setNativeLanguage(s?.value ?? '')} value={pickSingle(NativeLanguage, nativeLanguage)} />
+                  </div>
+                  <div className="up-group">
+                    <label className="up-label">Target Language *</label>
+                    <Select styles={selectStyles} options={TargetLanguage} onChange={s => setTargetLanguage(s?.value ?? '')} value={pickSingle(TargetLanguage, targetLanguage)} />
+                  </div>
+                  <div className="up-group">
+                    <label className="up-label">Proficiency Level *</label>
+                    <Select styles={selectStyles} options={TargetLanguageProficiency} onChange={s => setTargetLanguageProficiency(s?.value ?? '')} value={pickSingle(TargetLanguageProficiency, targetLanguageProficiency)} />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {step === 1 && (
+              <div className="up-step">
+                <div className="up-step-grid">
+                  <div className="up-group">
+                    <label className="up-label">Age *</label>
+                    <input placeholder="Enter age" onChange={e => setAge(e.target.value)} className="up-input" type="text" value={age} />
+                  </div>
+                  <div className="up-group">
+                    <label className="up-label">Profession *</label>
+                    <Select styles={selectStyles} options={Profession} onChange={s => setProfession(s?.value ?? '')} value={pickSingle(Profession, profession)} />
+                  </div>
+                </div>
+
+                <button className="up-accordion" type="button" onClick={() => setShowAdvanced(v => !v)}>
+                  {showAdvanced ? 'Hide extra details' : 'Add extra details (optional)'}
+                </button>
+
+                {showAdvanced && (
+                  <div className="up-step-grid">
+                    <div className="up-group">
+                      <label className="up-label">Gender</label>
+                      <Select styles={selectStyles} options={Gender} onChange={s => setGender(s?.value ?? '')} value={pickSingle(Gender, gender)} />
+                    </div>
+                    <div className="up-group">
+                      <label className="up-label">Personality Type (MBTI)</label>
+                      <Select styles={selectStyles} options={MBTI} onChange={s => setMBTI(s?.value ?? '')} value={pickSingle(MBTI, mbti)} />
+                    </div>
+                    <div className="up-group">
+                      <label className="up-label">Zodiac</label>
+                      <Select styles={selectStyles} options={Zodiac} onChange={s => setZodiac(s?.value ?? '')} value={pickSingle(Zodiac, zodiac)} />
+                    </div>
+                    <div className="up-group" style={{ gridColumn: '1 / -1' }}>
+                      <label className="up-label">Interests</label>
+                      <Select styles={selectStyles} isMulti options={allInterests} onChange={s => setSelectedInterests(s || [])} value={selectedInterests} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="up-step">
+                <div className="up-step-grid">
+                  <div className="up-group">
+                    <label className="up-label">Time Zone</label>
+                    <Select styles={selectStyles} options={TimeZones} onChange={s => setDefaultTimeZone(s?.value ?? '')} value={pickSingle(TimeZones, defaultTimeZone)} />
+                  </div>
+                  <div className="up-group">
+                    <label className="up-label">Profile Visibility</label>
+                    <Select styles={selectStyles} options={VisibilityOptions} onChange={s => setVisibility(s?.value ?? '')} value={pickSingle(VisibilityOptions, visibility)} />
+                  </div>
+                  <div className="up-group" style={{ gridColumn: '1 / -1' }}>
+                    <label className="up-label">Availability</label>
+                    <Select styles={selectStyles} isMulti options={availabilityOptions} value={availability} onChange={s => setAvailability(s || [])} placeholder="Pick a few times you’re usually free..." />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="up-step">
+                <div className="up-step-grid">
+                  <div className="up-group">
+                    <label className="up-label">Learning Goal</label>
+                    <Select styles={selectStyles} options={LearningGoalOptions} onChange={s => setLearningGoal(s?.value ?? '')} value={pickSingle(LearningGoalOptions, learningGoal)} />
+                  </div>
+                  <div className="up-group">
+                    <label className="up-label">Communication Style</label>
+                    <Select styles={selectStyles} options={CommunicationStyleOptions} onChange={s => setCommunicationStyle(s?.value ?? '')} value={pickSingle(CommunicationStyleOptions, communicationStyle)} />
+                  </div>
+                  <div className="up-group" style={{ gridColumn: '1 / -1' }}>
+                    <label className="up-label">Commitment Level</label>
+                    <div className="up-stars">
+                      {[1, 2, 3, 4, 5].map(n => (
+                        <span
+                          key={n}
+                          className={`up-star ${n <= commitmentLevel ? 'up-star-active' : 'up-star-inactive'}`}
+                          onClick={() => setCommitmentLevel(n)}
+                        >
+                          &#9733;
+                        </span>
+                      ))}
+                    </div>
+                    <div className="up-hint">Tip: 3 is casual, 5 is very committed.</div>
+                  </div>
+                </div>
+
+                {(userStats || badges.length > 0 || challengeStats) && (
+                  <button className="up-accordion" type="button" onClick={() => setShowStats(v => !v)}>
+                    {showStats ? 'Hide my stats' : 'Show my stats'}
+                  </button>
+                )}
+
+                {showStats && (userStats || badges.length > 0 || challengeStats) && (
+                  <div className="up-stats-wrap">
+                    {userStats && (
+                      <div className="up-stats-grid">
+                        <div className="up-stat-card">
+                          <div className="up-stat-val">{userStats.level || 1}</div>
+                          <div className="up-stat-label">Level</div>
+                        </div>
+                        <div className="up-stat-card">
+                          <div className="up-stat-val">{userStats.xp || 0}</div>
+                          <div className="up-stat-label">XP</div>
+                        </div>
+                        {challengeStats && (
+                          <>
+                            <div className="up-stat-card">
+                              <div className="up-stat-val">{challengeStats.wins || 0}</div>
+                              <div className="up-stat-label">Challenge Wins</div>
+                            </div>
+                            <div className="up-stat-card">
+                              <div className="up-stat-val">{challengeStats.winRate || 0}%</div>
+                              <div className="up-stat-label">Win Rate</div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    {badges.length > 0 && (
+                      <div>
+                        <label className="up-label" style={{ margin: '12px 0 6px' }}>Badges Earned</label>
+                        <div className="up-badge-list">
+                          {badges.map(b => (
+                            <span key={b.id} className="up-badge-chip" title={b.description}>
+                              {b.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="up-wizard-footer">
+              <button
+                className="up-btn-secondary"
+                type="button"
+                onClick={step === 0 ? handleBack : prevStep}
+              >
+                {step === 0 ? 'Back to Dashboard' : 'Back'}
+              </button>
+
+              {step < STEPS.length - 1 ? (
+                <button className="up-btn-primary" type="button" onClick={nextStep}>
+                  Continue
+                </button>
+              ) : (
+                <button className="up-btn-primary" type="submit">
+                  Save & Finish
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

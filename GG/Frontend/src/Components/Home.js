@@ -1,51 +1,41 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import "./Login.scss"; // Reuse styles from Login.js for consistency
+import "./Login.scss"; // reuse auth styles
 import logo from "../Styles/logo.png";
 
 function Home() {
   const navigate = useNavigate();
 
   return (
-    <div className="login-background">
-      {/* Left section */}
-      <div className="visual-section">
+    <div className="auth-page">
+      <div className="auth-card" style={{ maxWidth: 560 }}>
         <img
           src={logo}
-          alt="Language Exchange Logo"
-          style={{ maxWidth: "70%", height: "auto", marginBottom: "20px" }}
+          alt="Language Exchange Matchmaker logo"
+          style={{ width: 96, height: 96, objectFit: "contain", margin: "0 auto 12px" }}
         />
-      </div>
+        <h1 className="auth-title">Language Exchange Matchmaker</h1>
+        <p className="auth-subtitle">
+          A focused space to practice Korean and English with real people.
+        </p>
 
-      {/* Right section */}
-      <div className="login-container">
-        <div className="login-content">
-          <div className="text-login">Language Exchange Matchmaker</div>
-          <div className="text-subtitle">
-            Connect with people around the world to learn and practice new languages.
-          </div>
+        <div className="login-input">
+          <label className="button-header">Already have an account?</label>
+          <button className="auth-primary" type="button" onClick={() => navigate("/Login")}>
+            Log In
+          </button>
+        </div>
 
-          {/* Login Button Section */}
-          <div className="col-12">
-            <div className="button-header">Continuing your learning?</div>
-            <button className="btn-login" onClick={() => navigate("/login")}>
-              Login
-            </button>
-          </div>
+        <div className="login-input">
+          <label className="button-header">New here?</label>
+          <button className="auth-secondary" type="button" onClick={() => navigate("/Register")}>
+            Create an account
+          </button>
+        </div>
 
-          {/* Register Button Section */}
-          <div className="col-12">
-            <div className="button-header">Ready to get started?</div>
-            <button className="btn-login" onClick={() => navigate("/register")}>
-              Register
-            </button>
-          </div>
-
-          {/* Statistics or additional info */}
-          <div className="home-stats">
-            <p>🌍 Develop friendships with users all over the world!</p>
-            <p>📚 Supporting English and Korean, with more languages to come!</p>
-          </div>
+        <div className="text-subtitle" style={{ marginTop: 8 }}>
+          Match based on goals, schedule, and level – then track your progress with games,
+          quests, and badges.
         </div>
       </div>
     </div>

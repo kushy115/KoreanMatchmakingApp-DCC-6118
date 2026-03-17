@@ -2,7 +2,7 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('UserBadges', {
+    await queryInterface.createTable('UserBadge', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -12,14 +12,14 @@ module.exports = {
       userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: 'UserAccounts', key: 'id' },
+        references: { model: 'UserAccount', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
       badgeId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: 'Badges', key: 'id' },
+        references: { model: 'Badge', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
@@ -40,13 +40,13 @@ module.exports = {
       },
     });
 
-    await queryInterface.addIndex('UserBadges', ['userId', 'badgeId'], {
+    await queryInterface.addIndex('UserBadge', ['userId', 'badgeId'], {
       unique: true,
       name: 'user_badge_unique',
     });
   },
 
   async down(queryInterface) {
-    await queryInterface.dropTable('UserBadges');
+    await queryInterface.dropTable('UserBadge');
   },
 };

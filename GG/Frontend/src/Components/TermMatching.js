@@ -73,6 +73,7 @@ function TermMatching() {
   return (
     <div className="tm-page">
       <Navbar id={id} />
+      <div className="tm-page-content">
       <div className="tm-container">
         <div className="tm-header">
           <h2 className="tm-title">Term Matching</h2>
@@ -141,18 +142,33 @@ function TermMatching() {
 
         {result && (
           <div className="tm-results">
+            <div className="tm-mascot">
+              <div className="tm-mascot-circle">
+                <span className="tm-mascot-face">{result.score >= 80 ? ':D' : result.score >= 50 ? ':)' : ':/'}</span>
+              </div>
+              <h3 className="tm-congrats">
+                {result.score === 100 ? 'Perfect!' : result.score >= 80 ? 'Great job!' : result.score >= 50 ? 'Nice work!' : 'Keep going!'}
+              </h3>
+              <p className="tm-congrats-sub">
+                {result.score >= 80 ? 'Your vocabulary is growing!' : 'Every round makes you better!'}
+              </p>
+            </div>
+
             <div className="tm-score-banner">
               <span className="tm-score">{result.score}%</span>
               <span className="tm-score-detail">{result.correct}/{result.total} correct</span>
             </div>
-            <div className="tm-xp-earned">+{result.xpEarned} XP</div>
+            <div className="tm-xp-bar-section">
+              <div className="tm-xp-earned-label">+{result.xpEarned} XP earned</div>
+              <div className="tm-xp-track"><div className="tm-xp-fill" style={{ width: `${Math.min(100, (result.xpEarned / 50) * 100)}%` }} /></div>
+            </div>
 
             {result.newBadges && result.newBadges.length > 0 && (
               <div className="tm-new-badges">
                 <h4>New Badges Earned!</h4>
                 {result.newBadges.map(b => (
                   <div key={b.id} className="tm-badge-toast">
-                    <span className="tm-badge-icon">{b.icon}</span> {b.name}
+                    {b.name}
                   </div>
                 ))}
               </div>
@@ -175,6 +191,7 @@ function TermMatching() {
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

@@ -125,6 +125,7 @@ function ChallengeHub() {
   return (
     <div className="ch-page">
       <Navbar id={id} />
+      <div className="ch-page-content">
       <div className="ch-container">
         <div className="ch-header">
           <h2 className="ch-title">1v1 Challenges</h2>
@@ -231,6 +232,7 @@ function ChallengeHub() {
             ))
           )}
         </div>
+      </div>
       </div>
     </div>
   );

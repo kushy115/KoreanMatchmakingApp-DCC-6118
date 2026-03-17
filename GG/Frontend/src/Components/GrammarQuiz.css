@@ -4,8 +4,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 30px 20px 60px;
+  padding: 0;
   font-family: 'HK Sentiments', sans-serif;
+}
+
+.gq-page-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px 60px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .gq-loading {
@@ -164,8 +173,7 @@
 }
 
 .gq-submit-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(99,68,166,0.28);
 }
 
 .gq-submit-btn:disabled {
@@ -311,3 +319,81 @@
 .gq-back-btn:hover {
   background-color: #f3f0fa;
 }
+
+.gq-mascot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+  animation: gq-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.gq-mascot-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6344A6 0%, #22c1c3 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 20px rgba(99,68,166,0.3);
+}
+
+.gq-mascot-face {
+  font-size: 32px;
+  color: #fff;
+  font-weight: bold;
+  font-family: monospace;
+}
+
+.gq-congrats {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  color: #364659;
+  margin: 0;
+}
+
+.gq-congrats-sub {
+  font-size: 14px;
+  color: #888;
+  margin: 4px 0 0 0;
+}
+
+.gq-xp-bar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.gq-xp-earned-label {
+  font-size: 20px;
+  font-weight: bold;
+  color: #16a34a;
+  animation: gq-count 0.8s ease both 0.3s;
+}
+
+.gq-xp-track {
+  width: 80%;
+  height: 12px;
+  background: #e9e4f5;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.gq-xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6344A6, #22c1c3);
+  border-radius: 6px;
+  animation: gq-grow 1s ease both 0.5s;
+}
+
+@keyframes gq-pop {
+  0% { opacity: 0; transform: scale(0.3); }
+  60% { opacity: 1; transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+@keyframes gq-grow { from { width: 0; } }
+@keyframes gq-count { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import "./Registration.css";
-import "./Dashboard.css";
-import "./Translator.css";
-import Button from "react-bootstrap/Button";
 import { createSearchParams, useSearchParams, useNavigate } from "react-router-dom";
 import translate from "translate";
 import { handleTranslator } from "../Services/userService";
+import Navbar from './NavBar';
+import "./Translator.css";
 
 function Translator() {
   const [search] = useSearchParams();
@@ -24,51 +22,36 @@ function Translator() {
     }
   };
 
-  const saveButton = async () => {
-    try {
-      // original -> EN and KO versions
-      const textEn = await translate(inputText, { to: "en", from: "ko" });
-      const textKo = await translate(inputText, { to: "ko", from: "en" });
-      await handleTranslator(textEn, textKo);
-    } catch (err) {
-      console.error("Save translation error:", err);
-    }
-  };
-
   const onClear = () => {
     setInputText("");
     setTranslatedText("");
   };
 
   const handleBack = () => {
-    navigate({
-      pathname: "/Dashboard",
-      search: createSearchParams({ id }).toString(),
-    });
+    navigate({ pathname: "/Dashboard", search: createSearchParams({ id }).toString() });
   };
 
   return (
-    <div className="screen-Background">
-      <div className="screen-Container translator-container">
-        <div className="screen-Content translator-content">
-          <h1 className="translator-title">Translator</h1>
+    <div className="tl-page">
+      <Navbar id={id} />
+      <div className="tl-center">
+        <div className="tl-card">
+          <h1 className="tl-title">Translator</h1>
 
-          {/* Two side-by-side boxes */}
-          <div className="translator-panel">
-            <div className="translator-column">
-              <div className="translator-label">Enter text</div>
+          <div className="tl-panel">
+            <div className="tl-column">
+              <span className="tl-label">English</span>
               <textarea
-                className="translator-box"
+                className="tl-box"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Type text here..."
               />
             </div>
-
-            <div className="translator-column">
-              <div className="translator-label">Translation</div>
+            <div className="tl-column">
+              <span className="tl-label">Korean</span>
               <textarea
-                className="translator-box"
+                className="tl-box"
                 value={translatedText}
                 readOnly
                 placeholder="Translation will appear here..."
@@ -76,20 +59,10 @@ function Translator() {
             </div>
           </div>
 
-          {/* Buttons */}
-          <div className="translator-controls">
-            <Button className="translator-btn" variant="primary" onClick={translateButton}>
-              Translate
-            </Button>
-            {/* <Button className="translator-btn" variant="success" onClick={saveButton}>
-              Save Translation
-            </Button> */}
-            <Button className="translator-btn" variant="secondary" onClick={onClear}>
-              Clear
-            </Button>
-            <Button className="translator-btn" variant="outline-dark" onClick={handleBack}>
-              Back
-            </Button>
+          <div className="tl-controls">
+            <button className="tl-btn-primary" onClick={translateButton}>Translate</button>
+            <button className="tl-btn-secondary" onClick={onClear}>Clear</button>
+            <button className="tl-btn-secondary" onClick={handleBack}>Back to Dashboard</button>
           </div>
         </div>
       </div>

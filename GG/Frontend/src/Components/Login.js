@@ -26,7 +26,7 @@ function Login() {
     }
  
     const handleBack = () => {
-        navigate({ pathname: "/register" });
+        navigate({ pathname: "/Register" });
     };
  
     const handleOnClick = async () => {
@@ -52,56 +52,54 @@ function Login() {
     }
  
     return (
-        <div className="login-background">
-            <div className="visual-section">Welcome Back!</div>
-            <div className="login-container">
-                <div className="login-content">
-                    <div className="text-login"><h1>Login</h1></div>
-                    <div className="login-input">
-                        <label>Email:</label>
-                        <input
-                            placeholder="Enter your email"
-                            value={username}
-                            onChange={handleOnChangeUserInput}
-                        />
-                    </div>
-                    <div className="login-input">
-                        <label htmlFor="password" className="field-label">Password:</label>
-                        <div className="password-field">
-                            <input
-                                id="password"
-                                name="password"
-                                className="field-input"
-                                type={showPassword ? "text" : "password"}
-                                placeholder="Enter your password"
-                                value={password}
-                                onChange={handleOnChangePassword}
-                                autoComplete="current-password"
-                            />
-                            <button
-                                type="button"
-                                className="toggle-password-btn"
-                                aria-label={showPassword ? "Hide password" : "Show password"}
-                                onClick={() => setShowPassword((s) => !s)}
-                                title={showPassword ? "Hide password" : "Show password"}
-                            >
-                                {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
-                            </button>
-                        </div>
-                    </div>
-                    <div className="error-message">{errMsg}</div>
-                    <button className="btn-login" onClick={handleOnClick}>Login</button>
-                    <div
-                        className="register"
-                        style={{ color: "black", cursor: "pointer", fontWeight: "normal", transition: "color 0.3s ease" }}
-                        onClick={handleBack}
-                        onMouseEnter={(e) => (e.target.style.color = "#6344A6")}
-                        onMouseLeave={(e) => (e.target.style.color = "black")}
-                    >
-                        Don't have an account? Register!
-                    </div>
-                </div>
+        <div className="auth-page">
+          <div className="auth-card">
+            <h1 className="auth-title">Log In</h1>
+            <p className="auth-subtitle">Welcome back. Let’s pick up where you left off.</p>
+
+            <div className="login-input">
+              <label>Email</label>
+              <input
+                placeholder="Enter your email"
+                value={username}
+                onChange={handleOnChangeUserInput}
+              />
             </div>
+
+            <div className="login-input">
+              <label htmlFor="password" className="field-label">Password</label>
+              <div className="password-field">
+                <input
+                  id="password"
+                  name="password"
+                  className="field-input"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={handleOnChangePassword}
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  className="toggle-password-btn"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  onClick={() => setShowPassword((s) => !s)}
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="error-message">{errMsg}</div>
+
+            <div className="auth-actions">
+              <button className="auth-primary" onClick={handleOnClick}>Log In</button>
+              <button className="auth-secondary" type="button" onClick={handleBack}>
+                Create an account
+              </button>
+            </div>
+          </div>
         </div>
     );
 }

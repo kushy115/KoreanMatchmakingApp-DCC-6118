@@ -2,7 +2,7 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.addColumn('UserAccounts', 'gameStats', {
+    await queryInterface.addColumn('UserAccount', 'gameStats', {
       type: Sequelize.TEXT,
       allowNull: true,
       defaultValue: null,
@@ -10,6 +10,6 @@ module.exports = {
   },
 
   async down(queryInterface) {
-    await queryInterface.removeColumn('UserAccounts', 'gameStats');
+    await queryInterface.removeColumn('UserAccount', 'gameStats');
   },
 };

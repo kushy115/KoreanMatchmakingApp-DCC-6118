@@ -21,7 +21,6 @@ function GameSelect() {
   const [xp, setXp] = useState(0);
   const [xpToNext, setXpToNext] = useState(XP_PER_LEVEL);
   const [username, setUsername] = useState('');
-  const [difficulty, setDifficulty] = useState('Beginner');
   const [completedChallenges, setCompletedChallenges] = useState([]);
   const [profileImage, setProfileImage] = useState(null);
   const [quests, setQuests] = useState([]);
@@ -83,7 +82,8 @@ function GameSelect() {
   return (
     <div className="game-selection-page">
       <Navbar id={id} />
- 
+      <div className="gs-content">
+
       {/* ── Profile / Level Banner ── */}
       <div className="profile-banner">
         <div className="profile-avatar">
@@ -100,18 +100,6 @@ function GameSelect() {
  
         <div className="profile-details">
           <p className="profile-level">Level: {level}</p>
-          <div className="profile-difficulty-row">
-            <span className="difficulty-label">Difficulty</span>
-            <select
-              className="difficulty-select"
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value)}
-            >
-              <option value="Beginner">Beginner</option>
-              <option value="Intermediate">Intermediate</option>
-              <option value="Advanced">Advanced</option>
-            </select>
-          </div>
         </div>
  
         <div className="xp-bar-container">
@@ -230,6 +218,7 @@ function GameSelect() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

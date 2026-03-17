@@ -4,16 +4,16 @@ import { useNavigate, createSearchParams, useLocation } from 'react-router-dom';
 import './NavBar.css';
  
 const NAV_LINKS = [
-  { label: '🏠 Home',         path: '/Dashboard' },
-  { label: '🎮 Games',        path: '/GameSelection' },
-  { label: '🔍 Find Friends', path: '/FriendSearch' },
-  { label: '👥 Friends',      path: '/FriendsList' },
-  { label: '⚔️ Challenges',   path: '/Challenges' },
-  { label: '🤝 Teams',        path: '/TeamLobby' },
-  { label: '📅 Scheduler',    path: '/Scheduler' },
-  { label: '🤖 AI Chat',      path: '/Assistant' },
-  { label: '📝 Transcripts',  path: '/TranscriptView' },
-  { label: '⚙️ Profile',      path: '/UpdateProfile' },
+  { label: 'Home',         path: '/Dashboard' },
+  { label: 'Games',        path: '/GameSelection' },
+  { label: 'Find Friends', path: '/FriendSearch' },
+  { label: 'Friends',      path: '/FriendsList' },
+  { label: 'Challenges',   path: '/Challenges' },
+  { label: 'Teams',        path: '/TeamLobby' },
+  { label: 'Scheduler',    path: '/Scheduler' },
+  { label: 'AI Chat',      path: '/Assistant' },
+  { label: 'Transcripts',  path: '/TranscriptView' },
+  { label: 'Profile',     path: '/UpdateProfile' },
 ];
  
 // Width reserved for hamburger button when it appears
@@ -166,7 +166,7 @@ function Navbar({ id }) {
         )}
  
         <button className="nav-translator-btn" onClick={() => goTo('/Translator')}>
-          🌐 Translator
+          Translator
         </button>
       </div>
     </nav>

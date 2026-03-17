@@ -28,22 +28,11 @@ function LogoutConfirmationPage() {
 
     const handleOnClick = async () => {
         try {
-            data = await handleUserLogout(id);
-            console.log("check" + data.errorCode);
-            if (data.errorCode === 0) {
-                // todo when logout successful!
-                navigate({
-                    pathname: "/",
-                });
-            }
+            await handleUserLogout(id);
         } catch (error) {
-            if (error.response) {
-                if (error.response.data) {
-                    this.setState({
-                        errMessage: error.response.data.message
-                    });
-                }
-            }
+            console.error('Logout failed (non-blocking):', error);
+        } finally {
+            navigate({ pathname: "/" });
         }
     }
 

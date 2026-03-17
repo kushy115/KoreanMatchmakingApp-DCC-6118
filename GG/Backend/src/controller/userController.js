@@ -165,16 +165,18 @@ let handleTranslator = async (req, res) => {
 }
 
 let handleLogout = async (req, res) => {
-    //const userId = req.params.userId
-    console.log('curr: ' + currUser.id)
-    if (currUser) {
-        let userData = await userService.handleUserLogout(currUser.id)
+    try {
+        if (currUser && currUser.id) {
+            await userService.handleUserLogout(currUser.id);
+        }
+    } catch (e) {
+        console.error('Logout error (non-fatal):', e.message);
+    } finally {
+        currUser = null;
         return res.status(200).json({
-            errorCode: userData.errCode,
-            message: userData.errMessage,
-            id: userData.id,
-            user: userData.user? userData.user : {}
-       })
+            errorCode: 0,
+            message: 'Logged out',
+        });
     }
 }
 

@@ -1,133 +1,139 @@
-
 .game-selection-page {
   min-height: 100vh;
   background: linear-gradient(135deg, rgba(34, 193, 195, 1) 0%, rgba(253, 187, 45, 1) 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 30px 20px 60px;
+  padding: 0;
   font-family: 'HK Sentiments', sans-serif;
   box-sizing: border-box;
 }
- 
+
+.gs-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px 60px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 /* ── Profile / Level Banner ── */
 .profile-banner {
   width: 100%;
-  max-width: 700px;
+  max-width: 760px;
   background-color: #ffffff;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 16px 20px;
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 24px;
   margin-top: 24px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #ede9fe;
   box-sizing: border-box;
 }
- 
+
 .profile-avatar {
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background-color: #6344A6;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'DM Serif Display', serif;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: bold;
   color: #fff;
   flex-shrink: 0;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
- 
+
 .profile-details {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
- 
+
 .profile-level {
   font-family: 'DM Serif Display', serif;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: bold;
   color: #364659;
   margin: 0;
 }
- 
+
 .profile-difficulty-row {
   display: flex;
   align-items: center;
   gap: 10px;
 }
- 
+
 .difficulty-label {
   font-size: 13px;
   color: #364659;
   font-weight: bold;
 }
- 
+
 .difficulty-select {
   font-size: 13px;
   padding: 4px 10px;
   border-radius: 6px;
-  border: 1px solid #ccc;
+  border: 1px solid #d4d4d8;
   background-color: #fff;
   cursor: pointer;
   color: #364659;
   font-family: 'HK Sentiments', sans-serif;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease;
 }
- 
+
 .difficulty-select:focus {
   outline: none;
   border-color: #6344A6;
-  box-shadow: 0 4px 6px rgba(99, 68, 166, 0.2);
+  box-shadow: 0 0 0 2px rgba(99, 68, 166, 0.15);
 }
- 
+
 .xp-bar-container {
   display: flex;
   align-items: center;
   gap: 10px;
   flex: 1;
 }
- 
+
 .xp-bar-track {
   flex: 1;
-  height: 14px;
-  background-color: #e9e4f5;
-  border-radius: 7px;
+  height: 12px;
+  background-color: #ede9fe;
+  border-radius: 6px;
   overflow: hidden;
-  min-width: 120px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) inset;
+  min-width: 100px;
 }
- 
+
 .xp-bar-fill {
   height: 100%;
   background-color: #6344A6;
-  border-radius: 7px;
+  border-radius: 6px;
   transition: width 0.5s ease;
 }
- 
+
 .xp-text {
   font-size: 13px;
   color: #364659;
   white-space: nowrap;
   font-weight: bold;
 }
- 
+
 /* ── Main Layout ── */
 .game-selection-body {
   width: 100%;
-  max-width: 700px;
+  max-width: 760px;
   display: flex;
   gap: 16px;
   align-items: flex-start;
 }
- 
+
 /* ── Game Buttons (left column) ── */
 .games-column {
   display: flex;
@@ -135,50 +141,48 @@
   gap: 12px;
   flex: 1;
 }
- 
+
 .game-button {
   background-color: #6344A6;
   color: #ffffff;
   border: none;
-  border-radius: 8px;
-  padding: 28px 20px;
-  font-size: 17px;
+  border-radius: 10px;
+  padding: 24px 20px;
+  font-size: 16px;
   font-weight: bold;
   text-align: center;
   cursor: pointer;
   width: 100%;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 6px rgba(99, 68, 166, 0.18);
+  transition: box-shadow 0.2s ease;
   font-family: 'HK Sentiments', sans-serif;
-  letter-spacing: 0.3px;
 }
- 
+
 .game-button:hover {
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 68, 166, 0.28);
 }
- 
+
 .game-button:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(99, 68, 166, 0.3);
 }
- 
+
 .game-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(99, 68, 166, 0.15);
 }
- 
-/* ── Challenges Panel (right column) ── */
+
+/* ── Quests Panel (right column) ── */
 .quests-panel {
   width: 220px;
   flex-shrink: 0;
   background-color: #ffffff;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 16px;
   box-sizing: border-box;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #ede9fe;
 }
- 
+
 .quests-title {
   font-family: 'DM Serif Display', serif;
   font-size: 16px;
@@ -186,19 +190,19 @@
   margin: 0 0 14px 0;
   text-align: center;
 }
- 
+
 .quest-list {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
- 
+
 .quest-item {
   display: flex;
   align-items: flex-start;
   gap: 10px;
 }
- 
+
 .quest-text {
   flex: 1;
   font-size: 12px;
@@ -207,7 +211,7 @@
   text-align: center;
   font-family: 'HK Sentiments', sans-serif;
 }
- 
+
 .quest-checkbox {
   width: 18px;
   height: 18px;
@@ -221,7 +225,7 @@
   margin-top: 1px;
   transition: background-color 0.15s ease;
 }
- 
+
 .quest-checkbox:checked {
   background-color: #6344A6;
   border-color: #6344A6;
@@ -230,12 +234,12 @@
   background-repeat: no-repeat;
   background-position: center;
 }
- 
+
 .quest-checkbox:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(99, 68, 166, 0.3);
 }
- 
+
 /* ── Loading / Error States ── */
 .loading-state,
 .error-state {
@@ -246,29 +250,29 @@
   color: #364659;
   background-color: #ffffff;
   padding: 30px 40px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
- 
+
 .error-state {
-  color: #6344A6;
+  color: #dc2626;
 }
- 
+
 /* ── Challenge progress bars ── */
-.quest-progress-bar-track {
+.challenge-progress-bar-track {
   width: 100%;
   height: 6px;
-  background-color: #e9e4f5;
+  background-color: #ede9fe;
   border-radius: 4px;
   overflow: hidden;
 }
- 
-.quest-progress-bar-fill {
+
+.challenge-progress-bar-fill {
   height: 100%;
   border-radius: 4px;
   transition: width 0.5s ease;
 }
- 
+
 .quest-done-check {
   width: 18px;
   height: 18px;
@@ -285,7 +289,7 @@
 /* ── Badge Progress Tracker ── */
 .badges-section {
   width: 100%;
-  max-width: 700px;
+  max-width: 760px;
   margin-top: 24px;
 }
 
@@ -309,8 +313,9 @@
   border-radius: 10px;
   padding: 14px 10px;
   text-align: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #ede9fe;
+  transition: box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -318,22 +323,19 @@
 }
 
 .badge-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 14px rgba(99, 68, 166, 0.12);
 }
 
 .badge-locked {
-  opacity: 0.6;
+  opacity: 0.45;
+  filter: grayscale(0.4);
 }
 
 .badge-earned {
   opacity: 1;
-  animation: badgeShine 2s ease-in-out infinite alternate;
-}
-
-@keyframes badgeShine {
-  0% { box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-  100% { box-shadow: 0 4px 18px rgba(99,68,166,0.35); }
+  background: linear-gradient(135deg, #f3f0fa 0%, #ede9fe 100%);
+  border: 2px solid #6344A6;
+  box-shadow: 0 2px 12px rgba(99, 68, 166, 0.18);
 }
 
 .badge-bronze { border-bottom: 3px solid #cd7f32; }
@@ -342,8 +344,7 @@
 .badge-platinum { border-bottom: 3px solid #e5e4e2; }
 
 .badge-icon {
-  font-size: 32px;
-  line-height: 1;
+  display: none;
 }
 
 .badge-name {
@@ -369,8 +370,8 @@
 
 .badge-progress-track {
   flex: 1;
-  height: 6px;
-  background-color: #e9e4f5;
+  height: 5px;
+  background-color: #ede9fe;
   border-radius: 3px;
   overflow: hidden;
 }
@@ -390,8 +391,10 @@
 
 .badge-earned-label {
   font-size: 11px;
-  color: #16a34a;
+  color: #fff;
   font-weight: bold;
-  margin-top: 2px;
+  margin-top: 4px;
+  background: #16a34a;
+  padding: 2px 10px;
+  border-radius: 10px;
 }
- 

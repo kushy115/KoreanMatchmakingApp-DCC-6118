@@ -134,9 +134,8 @@ function TeamPage() {
  
   return (
     <div className="team-page-bg">
-      
+      <Navbar id={id} />
       <div className="team-center">
-       <Navbar id={id} />
         {/* ── Team Header Card ── */}
         <div className="team-card">
           {editing ? (

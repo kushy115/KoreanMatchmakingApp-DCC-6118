@@ -68,6 +68,7 @@ function GrammarQuiz() {
   return (
     <div className="gq-page">
       <Navbar id={id} />
+      <div className="gq-page-content">
       <div className="gq-container">
         <div className="gq-header">
           <h2 className="gq-title">Grammar Quiz</h2>
@@ -129,18 +130,33 @@ function GrammarQuiz() {
 
         {result && (
           <div className="gq-results">
+            <div className="gq-mascot">
+              <div className="gq-mascot-circle">
+                <span className="gq-mascot-face">{result.score >= 80 ? ':D' : result.score >= 50 ? ':)' : ':/'}</span>
+              </div>
+              <h3 className="gq-congrats">
+                {result.score === 100 ? 'Perfect!' : result.score >= 80 ? 'Great job!' : result.score >= 50 ? 'Nice work!' : 'Keep going!'}
+              </h3>
+              <p className="gq-congrats-sub">
+                {result.score >= 80 ? 'Your grammar skills are shining!' : 'Practice makes perfect!'}
+              </p>
+            </div>
+
             <div className="gq-score-banner">
               <span className="gq-score">{result.score}%</span>
               <span className="gq-score-detail">{result.correct}/{result.total} correct</span>
             </div>
-            <div className="gq-xp-earned">+{result.xpEarned} XP</div>
+            <div className="gq-xp-bar-section">
+              <div className="gq-xp-earned-label">+{result.xpEarned} XP earned</div>
+              <div className="gq-xp-track"><div className="gq-xp-fill" style={{ width: `${Math.min(100, (result.xpEarned / 50) * 100)}%` }} /></div>
+            </div>
 
             {result.newBadges && result.newBadges.length > 0 && (
               <div className="gq-new-badges">
                 <h4>New Badges Earned!</h4>
                 {result.newBadges.map(b => (
                   <div key={b.id} className="gq-badge-toast">
-                    <span>{b.icon}</span> {b.name}
+                    {b.name}
                   </div>
                 ))}
               </div>
@@ -172,6 +188,7 @@ function GrammarQuiz() {
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

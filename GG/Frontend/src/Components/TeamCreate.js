@@ -54,9 +54,8 @@ function TeamCreate() {
  
   return (
     <div className="team-page-bg">
-      
+      <Navbar id={id} />
       <div className="team-center">
-        <Navbar id={id} />
         <div className="team-card">
  
           {/* ── Step 1: Name + Emoji Logo ── */}

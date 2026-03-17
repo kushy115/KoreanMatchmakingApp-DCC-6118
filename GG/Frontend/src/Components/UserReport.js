@@ -1,149 +1,142 @@
-import React, { useState, useEffect } from 'react';
-import './UserReport.css';
+import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
-import { createSearchParams, useSearchParams, useNavigate } from "react-router-dom";
-import Button from 'react-bootstrap/Button';
+import { createSearchParams, useSearchParams, useNavigate } from 'react-router-dom';
+import Navbar from './NavBar';
+import './UserReport.css';
 import { handleGetAllUsersApi, handleGetUserProfileApi } from '../Services/findFriendsService';
 
+const selectStyles = {
+  control: (base) => ({
+    ...base,
+    borderRadius: 8,
+    borderColor: '#d4d4d8',
+    fontSize: 14,
+    fontFamily: "'HK Sentiments', sans-serif",
+  }),
+  option: (base) => ({
+    ...base,
+    fontSize: 14,
+    fontFamily: "'HK Sentiments', sans-serif",
+  }),
+};
+
 function UserReport() {
-    const [search] = useSearchParams();
-    const navigate = useNavigate();
-    const id = search.get("id");
+  const [search] = useSearchParams();
+  const navigate = useNavigate();
+  const id = search.get('id');
 
-    const [users, setUsers] = useState([]); // Store user options
-    const [selectedUser, setSelectedUser] = useState(null); // Store selected user
-    const [userInfo, setUserInfo] = useState(null); // Store user info (rating, proficiency, comments)
-    const [hidden, setHidden] = useState(false); // Track if the user has "hide" visibility
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
+  const [hidden, setHidden] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-    // Fetch users on component mount
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const userData = await handleGetAllUsersApi(); // Fetch user data
-                const userOptions = userData.map((user) => ({
-                    value: user.id,
-                    label: `${user.firstName} ${user.lastName}`, // Match display structure
-                }));
-                setUsers(userOptions);
-            } catch (error) {
-                console.error('Error fetching users:', error);
-            }
-        };
-
-        fetchUsers();
-    }, []);
-
-    // Handle user selection
-    const handleUserChange = (selectedOption) => {
-        setSelectedUser(selectedOption);
-        console.log("Selected user:", selectedOption);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const userData = await handleGetAllUsersApi();
+        const userOptions = userData.map((user) => ({
+          value: user.id,
+          label: `${user.firstName} ${user.lastName}`,
+        }));
+        setUsers(userOptions);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    // Fetch selected user's profile data when "Fetch User" button is clicked
-    const handleFetchUser = async () => {
-        if (selectedUser) {
-            try {
-                const response = await handleGetUserProfileApi(selectedUser.value);
-                console.log("Fetched user profile:", response.data);
+    fetchUsers();
+  }, []);
 
-                const userProfile = response.data;
+  const handleFetchUser = async () => {
+    if (!selectedUser) return;
+    try {
+      const response = await handleGetUserProfileApi(selectedUser.value);
+      const userProfile = response.data ?? response;
 
-                // Check visibility and set state accordingly
-                if (userProfile.visibility === "Hide") {
-                    setHidden(true);
-                    setUserInfo(null); // Clear existing user info
-                } else {
-                    setHidden(false);
-                    setUserInfo({
-                        rating: userProfile.rating || "N/A",
-                        proficiency: userProfile.target_language_proficiency || "N/A",
-                        comments: userProfile.comments || "N/A",
-                    });
-                }
-            } catch (error) {
-                console.error("Error fetching user profile:", error);
-            }
-        } else {
-            console.log("No user selected.");
-        }
-    };
-
-    // Navigate back to the dashboard
-    const handleBack = () => {
-        navigate({
-            pathname: "/Dashboard",
-            search: createSearchParams({ id: id }).toString(),
+      if (userProfile.visibility === 'Hide') {
+        setHidden(true);
+        setUserInfo(null);
+      } else {
+        setHidden(false);
+        setUserInfo({
+          rating: userProfile.rating ?? 'N/A',
+          proficiency: userProfile.target_language_proficiency ?? 'N/A',
+          comments: userProfile.comments ?? 'N/A',
         });
-    };
-
-    return (
-    <div className="screen-Background">
-        <div className="screen-Container">
-        <div className="screen-Content">
-            <h2>User Report</h2>
-            
-            
-            <div className="dropdown-container">
-            <Select
-                options={users}
-                value={selectedUser}
-                onChange={handleUserChange}
-                placeholder="Select a user..."
-                className="user-report-dropdown"
-            />
-            </div>
-
-            
-            {hidden ? (
-            <div className="data-display">
-                <h3>User Information is Hidden</h3>
-            </div>
-            ) : (
-            userInfo && (
-                <>
-                
-                <div className="data-display">
-                    <h3>Rating:</h3>
-                    <p>{userInfo.rating}</p>
-                </div>
-
-                
-                <div className="data-display">
-                    <h3>Proficiency:</h3>
-                    <p>{userInfo.proficiency}</p>
-                </div>
-
-                
-                <div className="data-display">
-                    <h3>Comments:</h3>
-                    <p>{userInfo.comments}</p>
-                </div>
-                </>
-            )
-            )}
-
-            
-            <div
-            className="button-container"
-            style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '10px',
-                marginTop: '20px',
-            }}
-            >
-            <button className="btn-fetch" onClick={handleFetchUser}>
-                Fetch User
-            </button>
-            <button className="btn-back-02" onClick={handleBack}>
-                Back
-            </button>
-            </div>
-        </div>
-        </div>
-    </div>
-    );
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
     }
-    
+  };
+
+  const handleBack = () => {
+    navigate({
+      pathname: '/Dashboard',
+      search: createSearchParams({ id }).toString(),
+    });
+  };
+
+  return (
+    <div className="ur-page">
+      <Navbar id={id} />
+      <div className="ur-center">
+        <div className="ur-card">
+          <h1 className="ur-title">User Report</h1>
+          <p className="ur-subtitle">
+            Look up a learner and see their rating, proficiency, and feedback.
+          </p>
+
+          <div>
+            <div className="ur-select-label">Select user</div>
+            <Select
+              styles={selectStyles}
+              options={users}
+              value={selectedUser}
+              isLoading={loading}
+              onChange={setSelectedUser}
+              placeholder="Search by name..."
+            />
+          </div>
+
+          {hidden && (
+            <div className="ur-hidden">
+              This user has chosen to hide their information.
+            </div>
+          )}
+
+          {!hidden && userInfo && (
+            <>
+              <div className="ur-info-card">
+                <div className="ur-info-label">Rating</div>
+                <div className="ur-info-value">{userInfo.rating}</div>
+              </div>
+              <div className="ur-info-card">
+                <div className="ur-info-label">Target Language Proficiency</div>
+                <div className="ur-info-value">{userInfo.proficiency}</div>
+              </div>
+              <div className="ur-info-card">
+                <div className="ur-info-label">Comments</div>
+                <div className="ur-info-value">{userInfo.comments}</div>
+              </div>
+            </>
+          )}
+
+          <div className="ur-buttons">
+            <button className="ur-btn-primary" type="button" onClick={handleFetchUser}>
+              Fetch User
+            </button>
+            <button className="ur-btn-secondary" type="button" onClick={handleBack}>
+              Back to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default UserReport;
+

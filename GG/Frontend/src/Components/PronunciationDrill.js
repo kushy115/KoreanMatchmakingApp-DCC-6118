@@ -69,6 +69,7 @@ function PronunciationDrill() {
   return (
     <div className="pd-page">
       <Navbar id={id} />
+      <div className="pd-page-content">
       <div className="pd-container">
         <div className="pd-header">
           <h2 className="pd-title">Pronunciation Drill</h2>
@@ -131,18 +132,38 @@ function PronunciationDrill() {
 
         {result && (
           <div className="pd-results">
+            <div className="pd-mascot">
+              <div className="pd-mascot-circle">
+                <span className="pd-mascot-face">{result.score >= 80 ? ':D' : result.score >= 50 ? ':)' : ':/'}</span>
+              </div>
+              <h3 className="pd-congrats">
+                {result.score === 100 ? 'Perfect!' : result.score >= 80 ? 'Great job!' : result.score >= 50 ? 'Nice work!' : 'Keep going!'}
+              </h3>
+              <p className="pd-congrats-sub">
+                {result.score >= 80
+                  ? 'Your pronunciation is really improving!'
+                  : 'Every practice session makes you better!'}
+              </p>
+            </div>
+
             <div className="pd-score-banner">
               <span className="pd-score">{result.score}%</span>
               <span className="pd-score-detail">{result.completed}/{result.total} phrases practiced</span>
             </div>
-            <div className="pd-xp-earned">+{result.xpEarned} XP</div>
+
+            <div className="pd-xp-bar-section">
+              <div className="pd-xp-earned-label">+{result.xpEarned} XP earned</div>
+              <div className="pd-xp-track">
+                <div className="pd-xp-fill" style={{ width: `${Math.min(100, (result.xpEarned / 50) * 100)}%` }} />
+              </div>
+            </div>
 
             {result.newBadges && result.newBadges.length > 0 && (
               <div className="pd-new-badges">
                 <h4>New Badges Earned!</h4>
                 {result.newBadges.map(b => (
                   <div key={b.id} className="pd-badge-toast">
-                    <span>{b.icon}</span> {b.name}
+                    {b.name}
                   </div>
                 ))}
               </div>
@@ -159,7 +180,7 @@ function PronunciationDrill() {
               ))}
             </div>
 
-            <div className="pd-actions">
+            <div className="pd-actions" style={{ marginTop: '20px' }}>
               <button className="pd-submit-btn" onClick={() => loadRound()}>Practice Again</button>
               <button className="pd-back-btn" onClick={() => navigate(`/GameSelection?id=${id}`)}>
                 Back to Games
@@ -167,6 +188,7 @@ function PronunciationDrill() {
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

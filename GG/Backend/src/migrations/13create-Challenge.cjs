@@ -2,7 +2,7 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Challenges', {
+    await queryInterface.createTable('Challenge', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -12,14 +12,14 @@ module.exports = {
       challengerId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: 'UserAccounts', key: 'id' },
+        references: { model: 'UserAccount', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
       challengedId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: 'UserAccounts', key: 'id' },
+        references: { model: 'UserAccount', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
@@ -67,6 +67,6 @@ module.exports = {
   },
 
   async down(queryInterface) {
-    await queryInterface.dropTable('Challenges');
+    await queryInterface.dropTable('Challenge');
   },
 };

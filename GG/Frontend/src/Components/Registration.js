@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import React from "react";
-import './Registration.css';
+import './Login.scss';
 import { handleRegisterApi } from '../Services/userService';
 import { createSearchParams, useNavigate } from "react-router-dom";
  
@@ -63,43 +63,38 @@ function Registration() {
   );
  
   return (
-    <div className="login-background">
-      <div className="visual-section">Welcome Back!</div>
-      <div className="login-container">
-        <div className="login-content">
-          <div className="text-login"><h1>Registration</h1></div>
-          <div>{errorMessage()}</div>
-          <form>
-            <div className="login-content">
-              <div>
-                <label className="button-header">First Name:</label>
-                <input placeholder="Enter First Name.." onChange={handleFirstName} value={firstName} type="text" />
-              </div>
-              <div>
-                <label className="button-header">Last Name:</label>
-                <input placeholder="Enter Last Name.."  onChange={handleLastName}  value={lastName}  type="text" />
-              </div>
-              <div>
-                <label className="button-header">Email:</label>
-                <input placeholder="Enter Email.."     onChange={handleEmail}     value={email}     type="text" />
-              </div>
-              <div>
-                <label className="button-header">Password:</label>
-                <input placeholder="Enter Password.."  onChange={handlePassword}  value={password}  type="text" />
-              </div>
-              <button className="btn-login" onClick={handleSubmit}>Create Profile</button>
-              <div
-                className="login"
-                style={{ color: "black", cursor: "pointer", fontWeight: "normal", transition: "color 0.3s ease" }}
-                onClick={handleBack}
-                onMouseEnter={(e) => (e.target.style.color = "#6344A6")}
-                onMouseLeave={(e) => (e.target.style.color = "black")}
-              >
-                Already have an account? Login!
-              </div>
-            </div>
-          </form>
-        </div>
+    <div className="auth-page">
+      <div className="auth-card">
+        <h1 className="auth-title">Create Account</h1>
+        <p className="auth-subtitle">Sign up to start games, quests, and practice sessions.</p>
+
+        <div>{errorMessage()}</div>
+
+        <form onSubmit={handleSubmit}>
+          <div className="login-input">
+            <label className="button-header">First Name</label>
+            <input placeholder="Enter first name" onChange={handleFirstName} value={firstName} type="text" />
+          </div>
+          <div className="login-input">
+            <label className="button-header">Last Name</label>
+            <input placeholder="Enter last name"  onChange={handleLastName}  value={lastName}  type="text" />
+          </div>
+          <div className="login-input">
+            <label className="button-header">Email</label>
+            <input placeholder="Enter email"     onChange={handleEmail}     value={email}     type="text" />
+          </div>
+          <div className="login-input">
+            <label className="button-header">Password</label>
+            <input placeholder="Enter password"  onChange={handlePassword}  value={password}  type="password" />
+          </div>
+
+          <div className="auth-actions">
+            <button className="auth-primary" type="submit">Create Profile</button>
+            <button className="auth-secondary" type="button" onClick={handleBack}>
+              Already have an account? Log in
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

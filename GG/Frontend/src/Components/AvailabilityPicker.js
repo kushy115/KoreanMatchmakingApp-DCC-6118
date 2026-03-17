@@ -81,13 +81,19 @@ const AvailabilityPicker = () => {
     }
   };
 
-  // Handle back button
+  // Handle back button (contextual)
   const handleBack = () => {
     navigate({
       pathname: `/${returnTo}`,
-      search: createSearchParams({
-        id: id,
-      }).toString(),
+      search: createSearchParams({ id }).toString(),
+    });
+  };
+
+  // Global back to dashboard
+  const handleBackToDashboard = () => {
+    navigate({
+      pathname: '/Dashboard',
+      search: createSearchParams({ id }).toString(),
     });
   };
 
@@ -131,6 +137,9 @@ const AvailabilityPicker = () => {
         </div>
         
         <div className="button-container">
+          <button className="btn-back" onClick={handleBackToDashboard}>
+            Back to Dashboard
+          </button>
           <button className="btn-back" onClick={handleBack}>
             Back
           </button>

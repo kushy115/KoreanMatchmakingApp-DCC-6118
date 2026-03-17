@@ -85,9 +85,8 @@ function TeamLobby() {
  
   return (
     <div className="team-page-bg">
-      
+      <Navbar id={id} />
       <div className="team-center">
-        <Navbar id={id} />
         <div className="team-card">
           <div className="team-card-logo">👥</div>
           <h1 className="team-card-title">Teams</h1>

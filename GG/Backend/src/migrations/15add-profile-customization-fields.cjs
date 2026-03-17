@@ -2,15 +2,15 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.addColumn('UserProfiles', 'learning_goal', {
+    await queryInterface.addColumn('UserProfile', 'learning_goal', {
       type: Sequelize.STRING,
       allowNull: true,
     });
-    await queryInterface.addColumn('UserProfiles', 'communication_style', {
+    await queryInterface.addColumn('UserProfile', 'communication_style', {
       type: Sequelize.STRING,
       allowNull: true,
     });
-    await queryInterface.addColumn('UserProfiles', 'commitment_level', {
+    await queryInterface.addColumn('UserProfile', 'commitment_level', {
       type: Sequelize.INTEGER,
       allowNull: true,
       defaultValue: 3,
@@ -18,8 +18,8 @@ module.exports = {
   },
 
   async down(queryInterface) {
-    await queryInterface.removeColumn('UserProfiles', 'learning_goal');
-    await queryInterface.removeColumn('UserProfiles', 'communication_style');
-    await queryInterface.removeColumn('UserProfiles', 'commitment_level');
+    await queryInterface.removeColumn('UserProfile', 'learning_goal');
+    await queryInterface.removeColumn('UserProfile', 'communication_style');
+    await queryInterface.removeColumn('UserProfile', 'commitment_level');
   },
 };
