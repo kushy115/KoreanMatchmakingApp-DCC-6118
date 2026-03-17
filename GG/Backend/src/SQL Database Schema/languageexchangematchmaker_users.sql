@@ -31,6 +31,8 @@ CREATE TABLE `users` (
   `address` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
   `gender` tinyint DEFAULT NULL,
   `phonenumber` varchar(45) DEFAULT NULL,
+  `xp` int DEFAULT 0,
+  `level` int DEFAULT 1,
   `createdAt` varchar(45) DEFAULT NULL,
   `updatedAt` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`),

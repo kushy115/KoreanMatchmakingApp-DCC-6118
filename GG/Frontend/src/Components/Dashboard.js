@@ -243,6 +243,12 @@ function Dashboard()  {
           >
               Transcripts
           </button>
+          <button className="btn-action" onClick={() => navigate({
+            pathname: "/GameSelection",
+            search: createSearchParams({ id: id }).toString()
+          })}>
+            Games
+          </button>
 
       </div>
 

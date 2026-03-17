@@ -3,6 +3,7 @@ import React from "react";
 import './Registration.css'; 
 import './UpdateProfile.css';  // ← Use UpdateProfile.css for white box
 import Select from "react-select";
+import ProfileImageSection from './ProfileImageSection';
 
 import {
   handleProfileCreationAPI,
@@ -17,6 +18,7 @@ import { createSearchParams, useNavigate, useSearchParams } from "react-router-d
 
 function CreateProfile() {
   // Profile fields
+  const [profileImage, setProfileImage] = useState(null);
   const [nativeLanguage, setNativeLanguage] = useState('');
   const [targetLanguage, setTargetLanguage] = useState('');
   const [targetLanguageProficiency, setTargetLanguageProficiency] = useState('');
@@ -282,6 +284,14 @@ function CreateProfile() {
         </div>
 
         <form className="set-profile-form">
+          <div className='form-group'>
+            <ProfileImageSection
+              id={id}
+              currentImage={profileImage}
+              onImageChange={(path) => setProfileImage(path)}
+            />
+          </div>
+
           <div className='form-group'>
             <label className="label">Native Language*</label>
             <Select

@@ -1,0 +1,654 @@
+ 
+/* ── Page Background ── */
+.team-page-bg {
+  min-height: 100vh;
+  background: linear-gradient(135deg, rgba(34, 193, 195, 1) 0%, rgba(253, 187, 45, 1) 100%);
+  display: flex;
+  flex-direction: column;
+  font-family: 'HK Sentiments', sans-serif;
+}
+ 
+.team-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px 60px;
+  gap: 20px;
+}
+ 
+.team-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  color: #364659;
+  background: linear-gradient(135deg, rgba(34, 193, 195, 1) 0%, rgba(253, 187, 45, 1) 100%);
+}
+ 
+/* ── Card ── */
+.team-card {
+  width: 100%;
+  max-width: 560px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 28px 28px 24px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+ 
+.team-card-logo {
+  font-size: 52px;
+  line-height: 1;
+}
+ 
+.team-card-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  color: #364659;
+  margin: 0;
+  text-align: center;
+}
+ 
+.team-card-subtitle {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  margin: 0;
+}
+ 
+/* ── Invite code ── */
+.team-invite-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #f3f0fa;
+  border-radius: 8px;
+  padding: 8px 16px;
+}
+ 
+.team-invite-label {
+  font-size: 13px;
+  color: #364659;
+  font-weight: bold;
+}
+ 
+.team-invite-code {
+  font-size: 18px;
+  font-weight: bold;
+  color: #6344A6;
+  letter-spacing: 3px;
+  font-family: monospace;
+}
+ 
+.team-total-xp {
+  font-size: 14px;
+  font-weight: bold;
+  color: #6344A6;
+  background-color: #f3f0fa;
+  padding: 6px 16px;
+  border-radius: 20px;
+}
+ 
+/* ── Sections inside card ── */
+.team-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+ 
+.team-section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 17px;
+  color: #364659;
+  margin: 0;
+  text-align: center;
+}
+ 
+.team-section-desc {
+  font-size: 13px;
+  color: #666;
+  text-align: center;
+  margin: 0;
+}
+ 
+.team-label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #364659;
+}
+ 
+/* ── Input ── */
+.team-input {
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: 'HK Sentiments', sans-serif;
+  box-sizing: border-box;
+  color: #364659;
+}
+ 
+.team-input:focus {
+  border-color: #6344A6;
+  box-shadow: 0 4px 6px rgba(99, 68, 166, 0.2);
+  outline: none;
+}
+ 
+/* ── Buttons ── */
+.team-btn-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+ 
+.team-btn-primary {
+  background-color: #6344A6;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-family: 'HK Sentiments', sans-serif;
+}
+ 
+.team-btn-primary:hover {
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+ 
+.team-btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+ 
+.team-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+ 
+.team-btn-secondary {
+  background-color: #ffffff;
+  color: #6344A6;
+  border: 2px solid #6344A6;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  font-family: 'HK Sentiments', sans-serif;
+}
+ 
+.team-btn-secondary:hover {
+  background-color: #f3f0fa;
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+ 
+.team-btn-secondary:active {
+  transform: translateY(0);
+}
+ 
+.team-btn-danger {
+  background-color: #ffffff;
+  color: #dc2626;
+  border: 2px solid #dc2626;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  font-family: 'HK Sentiments', sans-serif;
+}
+ 
+.team-btn-danger:hover {
+  background-color: #fef2f2;
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+ 
+/* ── Divider ── */
+.team-divider {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #999;
+  font-size: 13px;
+}
+ 
+.team-divider::before,
+.team-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: #ddd;
+}
+ 
+/* ── Logo picker grid ── */
+.logo-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+ 
+.logo-option {
+  background: #f3f0fa;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  font-size: 22px;
+  padding: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+  box-shadow: none;
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+ 
+.logo-option:hover {
+  border-color: #6344A6;
+  transform: scale(1.1);
+  box-shadow: none;
+}
+ 
+.logo-selected {
+  border-color: #6344A6 !important;
+  background-color: #e9e4f5 !important;
+  transform: scale(1.1);
+}
+ 
+/* ── Leaderboard ── */
+.leaderboard-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+ 
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  transition: background-color 0.15s;
+}
+ 
+.leaderboard-me {
+  background-color: #f3f0fa;
+  border-color: #c4b5fd;
+}
+ 
+.leaderboard-rank {
+  font-size: 18px;
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+}
+ 
+.leaderboard-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: bold;
+  color: #364659;
+}
+ 
+.owner-badge {
+  font-size: 12px;
+  color: #6344A6;
+  font-weight: normal;
+}
+ 
+.me-badge {
+  font-size: 12px;
+  color: #999;
+  font-weight: normal;
+}
+ 
+.leaderboard-level {
+  font-size: 12px;
+  color: #6344A6;
+  font-weight: bold;
+  background-color: #ede9fe;
+  padding: 2px 8px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+ 
+.leaderboard-xp {
+  font-size: 13px;
+  font-weight: bold;
+  color: #364659;
+  min-width: 70px;
+  text-align: right;
+  flex-shrink: 0;
+}
+ 
+.kick-btn {
+  background-color: #fff;
+  color: #dc2626;
+  border: 1px solid #dc2626;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background-color 0.15s ease;
+  flex-shrink: 0;
+  font-family: 'HK Sentiments', sans-serif;
+}
+ 
+.kick-btn:hover {
+  background-color: #fef2f2;
+  transform: none;
+  box-shadow: none;
+}
+ 
+/* ── Messages ── */
+.team-error {
+  color: #dc2626;
+  font-size: 13px;
+  text-align: center;
+  margin: 0;
+}
+ 
+.team-success {
+  color: #16a34a;
+  font-size: 13px;
+  text-align: center;
+  margin: 0;
+  font-weight: bold;
+}
+ 
+/* ── Join tabs (TeamLobby) ── */
+.team-tabs {
+  display: flex;
+  background-color: #f3f0fa;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+  width: 100%;
+}
+ 
+.team-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 6px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #6344A6;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background-color 0.15s ease;
+  font-family: 'HK Sentiments', sans-serif;
+}
+ 
+.team-tab:hover {
+  background-color: rgba(99, 68, 166, 0.1);
+  transform: none;
+  box-shadow: none;
+}
+ 
+.team-tab-active {
+  background-color: #6344A6 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+ 
+/* ── Search row ── */
+.team-search-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  align-items: center;
+}
+ 
+.team-search-row .team-input {
+  flex: 1;
+}
+ 
+/* ── Search results ── */
+.search-results {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-top: 4px;
+}
+ 
+.search-result-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 8px;
+}
+ 
+.search-result-logo { font-size: 20px; flex-shrink: 0; }
+.search-result-name { flex: 1; font-size: 14px; font-weight: bold; color: #364659; }
+.search-result-xp   { font-size: 12px; color: #6344A6; font-weight: bold; flex-shrink: 0; }
+ 
+/* ── Team stats row ── */
+.team-stats-row {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  padding: 12px 0;
+  border-top: 1px solid #f0edf8;
+  border-bottom: 1px solid #f0edf8;
+}
+ 
+.team-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+ 
+.team-stat-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  font-weight: bold;
+  color: #6344A6;
+}
+ 
+.team-stat-lbl {
+  font-size: 11px;
+  color: #999;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+ 
+.team-stat-divider {
+  width: 1px;
+  background-color: #e5e5e5;
+  align-self: stretch;
+}
+ 
+/* ── Copy button ── */
+.team-copy-btn {
+  background-color: #f3f0fa;
+  color: #6344A6;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: none;
+  font-family: 'HK Sentiments', sans-serif;
+  transition: background-color 0.15s ease;
+}
+ 
+.team-copy-btn:hover {
+  background-color: #e9e4f5;
+  transform: none;
+  box-shadow: none;
+}
+ 
+/* ── Section tabs (TeamPage) ── */
+.team-section-tabs {
+  display: flex;
+  border-bottom: 2px solid #f0edf8;
+  width: 100%;
+}
+ 
+.team-section-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  padding: 14px 10px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #999;
+  cursor: pointer;
+  box-shadow: none;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  font-family: 'HK Sentiments', sans-serif;
+}
+ 
+.team-section-tab:hover {
+  color: #6344A6;
+  background-color: #999;
+  transform: none;
+  box-shadow: none;
+}
+ 
+.team-section-tab-active {
+  color: #6344A6 !important;
+  border-bottom-color: #6344A6 !important;
+}
+ 
+/* ── Shared challenge cards ── */
+.quest-progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+ 
+.quest-progress-card {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.2s;
+}
+ 
+.quest-done {
+  border-color: #86efac;
+  background-color: #f0fdf4;
+}
+ 
+.quest-progress-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+ 
+.quest-progress-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+ 
+.quest-progress-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+ 
+.quest-progress-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #364659;
+}
+ 
+.quest-progress-desc {
+  font-size: 12px;
+  color: #888;
+  line-height: 1.4;
+}
+ 
+.quest-progress-xp {
+  font-size: 12px;
+  font-weight: bold;
+  color: #6344A6;
+  background-color: #ede9fe;
+  padding: 2px 8px;
+  border-radius: 20px;
+  flex-shrink: 0;
+  height: fit-content;
+}
+ 
+.quest-done-badge {
+  width: 22px;
+  height: 22px;
+  background-color: #16a34a;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+ 
+.quest-progress-bar-track {
+  width: 100%;
+  height: 8px;
+  background-color: #e9e4f5;
+  border-radius: 4px;
+  overflow: hidden;
+}
+ 
+.quest-progress-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+ 
+.quest-progress-count {
+  font-size: 11px;
+  color: #999;
+  font-weight: bold;
+  text-align: right;
+}

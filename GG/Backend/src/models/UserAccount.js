@@ -21,6 +21,20 @@ export default (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'UserAccount',
+    // Added for game selection feature
+    xp: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    level: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1,
+    },
+  }, {
+    sequelize,
+    modelName: 'UserAccount',
   });
 
   return UserAccount;

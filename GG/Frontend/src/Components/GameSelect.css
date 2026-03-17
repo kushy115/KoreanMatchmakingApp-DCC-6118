@@ -1,0 +1,284 @@
+
+.game-selection-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, rgba(34, 193, 195, 1) 0%, rgba(253, 187, 45, 1) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px 60px;
+  font-family: 'HK Sentiments', sans-serif;
+  box-sizing: border-box;
+}
+ 
+/* ── Profile / Level Banner ── */
+.profile-banner {
+  width: 100%;
+  max-width: 700px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  margin-top: 24px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+ 
+.profile-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: #6344A6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  font-weight: bold;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+ 
+.profile-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+ 
+.profile-level {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px;
+  font-weight: bold;
+  color: #364659;
+  margin: 0;
+}
+ 
+.profile-difficulty-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+ 
+.difficulty-label {
+  font-size: 13px;
+  color: #364659;
+  font-weight: bold;
+}
+ 
+.difficulty-select {
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+  color: #364659;
+  font-family: 'HK Sentiments', sans-serif;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+ 
+.difficulty-select:focus {
+  outline: none;
+  border-color: #6344A6;
+  box-shadow: 0 4px 6px rgba(99, 68, 166, 0.2);
+}
+ 
+.xp-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+ 
+.xp-bar-track {
+  flex: 1;
+  height: 14px;
+  background-color: #e9e4f5;
+  border-radius: 7px;
+  overflow: hidden;
+  min-width: 120px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) inset;
+}
+ 
+.xp-bar-fill {
+  height: 100%;
+  background-color: #6344A6;
+  border-radius: 7px;
+  transition: width 0.5s ease;
+}
+ 
+.xp-text {
+  font-size: 13px;
+  color: #364659;
+  white-space: nowrap;
+  font-weight: bold;
+}
+ 
+/* ── Main Layout ── */
+.game-selection-body {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+ 
+/* ── Game Buttons (left column) ── */
+.games-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+ 
+.game-button {
+  background-color: #6344A6;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 28px 20px;
+  font-size: 17px;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+  width: 100%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-family: 'HK Sentiments', sans-serif;
+  letter-spacing: 0.3px;
+}
+ 
+.game-button:hover {
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+ 
+.game-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 68, 166, 0.3);
+}
+ 
+.game-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+ 
+/* ── Challenges Panel (right column) ── */
+.quests-panel {
+  width: 220px;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 16px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+ 
+.quests-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 16px;
+  color: #364659;
+  margin: 0 0 14px 0;
+  text-align: center;
+}
+ 
+.quest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+ 
+.quest-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+ 
+.quest-text {
+  flex: 1;
+  font-size: 12px;
+  color: #364659;
+  line-height: 1.4;
+  text-align: center;
+  font-family: 'HK Sentiments', sans-serif;
+}
+ 
+.quest-checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #6344A6;
+  border-radius: 3px;
+  background-color: #fff;
+  flex-shrink: 0;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  margin-top: 1px;
+  transition: background-color 0.15s ease;
+}
+ 
+.quest-checkbox:checked {
+  background-color: #6344A6;
+  border-color: #6344A6;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-size: 70%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+ 
+.quest-checkbox:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 68, 166, 0.3);
+}
+ 
+/* ── Loading / Error States ── */
+.loading-state,
+.error-state {
+  text-align: center;
+  margin-top: 60px;
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: #364659;
+  background-color: #ffffff;
+  padding: 30px 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+ 
+.error-state {
+  color: #6344A6;
+}
+ 
+/* ── Challenge progress bars ── */
+.quest-progress-bar-track {
+  width: 100%;
+  height: 6px;
+  background-color: #e9e4f5;
+  border-radius: 4px;
+  overflow: hidden;
+}
+ 
+.quest-progress-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+ 
+.quest-done-check {
+  width: 18px;
+  height: 18px;
+  background-color: #16a34a;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: bold;
+}
+ 
