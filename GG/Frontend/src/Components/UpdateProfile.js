@@ -16,6 +16,8 @@ import {
 
 import { handleGetUserProfileApi } from '../Services/findFriendsService';
 import { handleGetUserStatsApi } from '../Services/gameSelectionService';
+import { handleGetUserBadgesApi } from '../Services/badgeService';
+import { getChallengeStats } from '../Services/challengeService';
 import { createSearchParams, useNavigate, useSearchParams } from "react-router-dom";
 
 function UpdateProfile() {
@@ -29,7 +31,13 @@ function UpdateProfile() {
   const [zodiac, setZodiac] = useState('');
   const [defaultTimeZone, setDefaultTimeZone] = useState('');
   const [visibility, setVisibility] = useState('');
+  const [learningGoal, setLearningGoal] = useState('');
+  const [communicationStyle, setCommunicationStyle] = useState('');
+  const [commitmentLevel, setCommitmentLevel] = useState(3);
   const [profileImage, setProfileImage] = useState(null);
+  const [userStats, setUserStats] = useState(null);
+  const [badges, setBadges] = useState([]);
+  const [challengeStats, setChallengeStats] = useState(null);
   const [allInterests, setAllInterests] = useState([]);
   const [selectedInterests, setSelectedInterests] = useState([]);
   const [availability, setAvailability] = useState([]);
@@ -82,6 +90,21 @@ function UpdateProfile() {
     { value: "ESTP", label: "ESTP" }, { value: "ESFP", label: "ESFP" },
   ];
   const VisibilityOptions = [{ value: "Show", label: "Show" }, { value: "Hide", label: "Hide" }];
+  const LearningGoalOptions = [
+    { value: "Conversational fluency", label: "Conversational fluency" },
+    { value: "Business/Professional", label: "Business/Professional" },
+    { value: "Travel preparation", label: "Travel preparation" },
+    { value: "Academic study", label: "Academic study" },
+    { value: "Cultural appreciation", label: "Cultural appreciation" },
+    { value: "K-pop/K-drama fan", label: "K-pop/K-drama fan" },
+  ];
+  const CommunicationStyleOptions = [
+    { value: "Text-heavy", label: "Text-heavy" },
+    { value: "Voice/Video preferred", label: "Voice/Video preferred" },
+    { value: "Mixed", label: "Mixed" },
+    { value: "Casual/Fun", label: "Casual/Fun" },
+    { value: "Structured/Formal", label: "Structured/Formal" },
+  ];
 
   const generateHourlySlots = (day) => {
     const slots = [];
@@ -114,10 +137,8 @@ function UpdateProfile() {
 
         // ── Profile fields ──
         if (profileRes.status === 'fulfilled') {
-          // Axios interceptor already unwraps response.data, so try multiple structures
           const raw = profileRes.value;
           const profile = raw?.data ?? raw;
-          console.log('Profile data received:', profile); // helps debug structure
           if (profile) {
             if (profile.native_language)              setNativeLanguage(profile.native_language);
             if (profile.target_language)              setTargetLanguage(profile.target_language);
@@ -129,15 +150,27 @@ function UpdateProfile() {
             if (profile.zodiac)                       setZodiac(profile.zodiac);
             if (profile.default_time_zone)            setDefaultTimeZone(profile.default_time_zone);
             if (profile.visibility)                   setVisibility(profile.visibility);
+            if (profile.learning_goal)                setLearningGoal(profile.learning_goal);
+            if (profile.communication_style)          setCommunicationStyle(profile.communication_style);
+            if (profile.commitment_level)             setCommitmentLevel(profile.commitment_level);
           }
         } else {
           console.log('Profile fetch failed (may not exist yet):', profileRes.reason);
         }
 
-        // ── Profile image from UserAccount ──
-        if (userStatsRes.status === 'fulfilled' && userStatsRes.value?.profileImage) {
-          setProfileImage(userStatsRes.value.profileImage);
+        if (userStatsRes.status === 'fulfilled') {
+          setUserStats(userStatsRes.value);
+          if (userStatsRes.value?.profileImage) setProfileImage(userStatsRes.value.profileImage);
         }
+
+        try {
+          const [badgeRes, challengeStatsRes] = await Promise.allSettled([
+            handleGetUserBadgesApi(id),
+            getChallengeStats(id),
+          ]);
+          if (badgeRes.status === 'fulfilled') setBadges(badgeRes.value?.badges || []);
+          if (challengeStatsRes.status === 'fulfilled') setChallengeStats(challengeStatsRes.value);
+        } catch {}
 
         // ── All available interests (for dropdown options) ──
         if (interestsAllRes.status === 'fulfilled') {
@@ -188,7 +221,7 @@ function UpdateProfile() {
     }
     setSubmitted(true); setError(false);
     try {
-      await handleProfileUpdateAPI(id, nativeLanguage, targetLanguage, targetLanguageProficiency, age, gender, profession, mbti, zodiac, defaultTimeZone, visibility);
+      await handleProfileUpdateAPI(id, nativeLanguage, targetLanguage, targetLanguageProficiency, age, gender, profession, mbti, zodiac, defaultTimeZone, visibility, learningGoal, communicationStyle, commitmentLevel);
       await handleReplaceUserInterests(id, selectedInterests.map(i => i.value));
       await handleReplaceUserAvailability(id, availability.map(a => a.value));
       navigate({ pathname: "/Dashboard", search: createSearchParams({ id }).toString() });
@@ -280,6 +313,78 @@ function UpdateProfile() {
             <label className="label">Visibility</label>
             <Select options={VisibilityOptions} onChange={s => setVisibility(s?.value ?? '')} value={pickSingle(VisibilityOptions, visibility)} />
           </div>
+
+          <hr style={{ margin: '20px 0', borderColor: '#e9e4f5' }} />
+          <h3 style={{ color: '#6344A6', fontFamily: 'DM Serif Display, serif' }}>Learning Preferences</h3>
+
+          <div className='form-group'>
+            <label className="label">Learning Goal</label>
+            <Select options={LearningGoalOptions} onChange={s => setLearningGoal(s?.value ?? '')} value={pickSingle(LearningGoalOptions, learningGoal)} />
+          </div>
+          <div className='form-group'>
+            <label className="label">Communication Style</label>
+            <Select options={CommunicationStyleOptions} onChange={s => setCommunicationStyle(s?.value ?? '')} value={pickSingle(CommunicationStyleOptions, communicationStyle)} />
+          </div>
+          <div className='form-group'>
+            <label className="label">Commitment Level (1-5)</label>
+            <div className="commitment-stars">
+              {[1, 2, 3, 4, 5].map(n => (
+                <span
+                  key={n}
+                  className={`star ${n <= commitmentLevel ? 'star-active' : ''}`}
+                  onClick={() => setCommitmentLevel(n)}
+                  style={{ cursor: 'pointer', fontSize: 28, color: n <= commitmentLevel ? '#f59e0b' : '#ddd', marginRight: 4 }}
+                >
+                  ★
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {(userStats || badges.length > 0 || challengeStats) && (
+            <>
+              <hr style={{ margin: '20px 0', borderColor: '#e9e4f5' }} />
+              <h3 style={{ color: '#6344A6', fontFamily: 'DM Serif Display, serif' }}>Your Stats</h3>
+
+              {userStats && (
+                <div className="profile-stats-grid">
+                  <div className="profile-stat-card">
+                    <div className="profile-stat-val">{userStats.level || 1}</div>
+                    <div className="profile-stat-label">Level</div>
+                  </div>
+                  <div className="profile-stat-card">
+                    <div className="profile-stat-val">{userStats.xp || 0}</div>
+                    <div className="profile-stat-label">XP</div>
+                  </div>
+                  {challengeStats && (
+                    <>
+                      <div className="profile-stat-card">
+                        <div className="profile-stat-val">{challengeStats.wins || 0}</div>
+                        <div className="profile-stat-label">Challenge Wins</div>
+                      </div>
+                      <div className="profile-stat-card">
+                        <div className="profile-stat-val">{challengeStats.winRate || 0}%</div>
+                        <div className="profile-stat-label">Win Rate</div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {badges.length > 0 && (
+                <div className="profile-badges">
+                  <h4 style={{ color: '#364659', margin: '12px 0 8px' }}>Badges Earned</h4>
+                  <div className="profile-badge-list">
+                    {badges.map(b => (
+                      <span key={b.id} className="profile-badge-chip" title={b.description}>
+                        {b.icon} {b.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
 
           <div className="profile-buttons">
             <button className="btn-back-02" type="button" onClick={handleSubmit}>Update Profile</button>

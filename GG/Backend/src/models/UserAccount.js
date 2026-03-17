@@ -18,10 +18,6 @@ export default (sequelize, DataTypes) => {
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
     loggedIn: DataTypes.BOOLEAN,
-  }, {
-    sequelize,
-    modelName: 'UserAccount',
-    // Added for game selection feature
     xp: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -31,6 +27,11 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 1,
+    },
+    gameStats: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      defaultValue: null,
     },
   }, {
     sequelize,

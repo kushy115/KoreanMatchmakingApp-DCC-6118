@@ -521,87 +521,79 @@ const FriendSearch = () => {
       </div>
 
       <div className="friend-search">
-        <h1>User Table</h1>
-        <button
-          className="calculate-score-btn"
-          onClick={calculateAllCompatibilityScores}
-        >
-          Calculate Compatibility Scores
-        </button>
-
-        <div className="table-container">
-          <table className="user-table">
-            <thead>
-              <tr>
-                <th>Actions</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>ID</th>
-                <th>Email</th>
-                <th>Gender</th>
-                <th>Profession</th>
-                <th>Interests</th>
-                <th>MBTI</th>
-                <th>Zodiac</th>
-                <th>Time Zone</th>
-                <th>Age</th>
-                <th>Native Language</th>
-                <th>Target Language</th>
-                <th>Compatibility Score</th>
-                <th>Availability</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {userNames.map((user, index) => (
-                <tr
-                  key={index}
-                  onClick={() => handleUserClick(user)}
-                  className="table-row"
-                >
-                  <td>
-                    <button
-                      className="add-friend-btn"
-                      title="Add friend"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleQuickAddFriend(user);
-                      }}
-                    >
-                      <FiUserPlus size={18} />
-                    </button>
-                  </td>
-
-                  <td>{user.firstName}</td>
-                  <td>{user.lastName}</td>
-                  <td>{user.id}</td>
-                  <td>{user.email}</td>
-                  <td>{user.gender}</td>
-                  <td>{user.profession}</td>
-                  <td>
-                    {Array.isArray(user.Interests)
-                      ? user.Interests.map(i => i.interest_name).join(', ')
-                      : ''}
-                  </td>
-                  <td>{user.mbti}</td>
-                  <td>{user.zodiac}</td>
-                  <td>{user.default_time_zone}</td>
-                  <td>{user.age}</td>
-                  <td>{getField(user, ["nativeLanguage", "native_language"])}</td>
-                  <td>{getField(user, ["targetLanguage", "target_language"])}</td>
-                  <td>{user.score !== null ? user.score : "N/A"}</td>
-
-                  <td>
-                    {Array.isArray(user.Availability)
-                      ? user.Availability.map(a => `${a.day_of_week} ${a.start_time}`).join(', ')
-                      : ''}
-                  </td>
-
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="fs-top-bar">
+          <h1>Find Friends</h1>
+          <button className="calculate-score-btn" onClick={calculateAllCompatibilityScores}>
+            Sort by Compatibility
+          </button>
         </div>
+
+        <div className="fs-card-grid">
+          {userNames.map((user, index) => (
+            <div key={index} className="fs-user-card" onClick={() => handleUserClick(user)}>
+              <div className="fs-card-header">
+                <div className="fs-avatar">
+                  {user.firstName ? user.firstName.charAt(0).toUpperCase() : '?'}
+                </div>
+                <div className="fs-card-name-block">
+                  <div className="fs-card-name">{user.firstName} {user.lastName}</div>
+                  <div className="fs-card-meta">{user.profession || ''} {user.age ? `· ${user.age}` : ''}</div>
+                </div>
+                <button
+                  className="fs-add-btn"
+                  title="Add friend"
+                  onClick={(e) => { e.stopPropagation(); handleQuickAddFriend(user); }}
+                >
+                  <FiUserPlus size={18} />
+                </button>
+              </div>
+
+              <div className="fs-card-body">
+                <div className="fs-card-row">
+                  <span className="fs-card-label">Languages</span>
+                  <span>{getField(user, ["nativeLanguage", "native_language"])} → {getField(user, ["targetLanguage", "target_language"])}</span>
+                </div>
+                {user.mbti && (
+                  <div className="fs-card-row">
+                    <span className="fs-card-label">MBTI</span>
+                    <span className="fs-tag">{user.mbti}</span>
+                  </div>
+                )}
+                {user.zodiac && (
+                  <div className="fs-card-row">
+                    <span className="fs-card-label">Zodiac</span>
+                    <span className="fs-tag">{user.zodiac}</span>
+                  </div>
+                )}
+                {user.learning_goal && (
+                  <div className="fs-card-row">
+                    <span className="fs-card-label">Goal</span>
+                    <span>{user.learning_goal}</span>
+                  </div>
+                )}
+                {Array.isArray(user.Interests) && user.Interests.length > 0 && (
+                  <div className="fs-card-interests">
+                    {user.Interests.slice(0, 4).map((interest, i) => (
+                      <span key={i} className="fs-interest-chip">{interest.interest_name || interest}</span>
+                    ))}
+                    {user.Interests.length > 4 && <span className="fs-interest-chip">+{user.Interests.length - 4}</span>}
+                  </div>
+                )}
+              </div>
+
+              {user.score !== null && user.score !== undefined && (
+                <div className="fs-card-footer">
+                  <span className="fs-score-label">Compatibility</span>
+                  <span className="fs-score-val">{user.score}</span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {userNames.length === 0 && (
+          <p style={{ textAlign: 'center', color: '#888', marginTop: 40 }}>No users match your filters.</p>
+        )}
 
         {successMessage && (
           <div className="success-message">

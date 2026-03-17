@@ -1,0 +1,313 @@
+.gq-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, rgba(34,193,195,1) 0%, rgba(253,187,45,1) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px 60px;
+  font-family: 'HK Sentiments', sans-serif;
+}
+
+.gq-loading {
+  text-align: center;
+  margin-top: 60px;
+  font-size: 20px;
+  color: #364659;
+}
+
+.gq-container {
+  width: 100%;
+  max-width: 600px;
+  margin-top: 24px;
+}
+
+.gq-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.gq-title {
+  font-family: 'DM Serif Display', serif;
+  color: #fff;
+  font-size: 28px;
+  margin: 0;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.gq-difficulty {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-family: 'HK Sentiments', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.gq-question-card {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+}
+
+.gq-progress-text {
+  text-align: center;
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.gq-progress-bar {
+  height: 6px;
+  background-color: #e9e4f5;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.gq-progress-fill {
+  height: 100%;
+  background-color: #6344A6;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.gq-question-text {
+  font-size: 16px;
+  color: #364659;
+  font-weight: bold;
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.gq-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gq-option {
+  padding: 14px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fff;
+  font-size: 14px;
+  color: #364659;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  font-family: 'HK Sentiments', sans-serif;
+}
+
+.gq-option:hover {
+  border-color: #6344A6;
+  background-color: #faf8ff;
+}
+
+.gq-selected {
+  border-color: #6344A6;
+  background-color: #f3f0fa;
+  font-weight: bold;
+}
+
+.gq-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.gq-nav-btn {
+  background: none;
+  border: 2px solid #6344A6;
+  color: #6344A6;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: 'HK Sentiments', sans-serif;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.gq-nav-btn:hover:not(:disabled) {
+  background-color: #f3f0fa;
+}
+
+.gq-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.gq-nav-next {
+  background-color: #6344A6;
+  color: #fff;
+}
+
+.gq-nav-next:hover:not(:disabled) {
+  background-color: #5236a0;
+}
+
+.gq-submit-btn {
+  background-color: #6344A6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 32px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: 'HK Sentiments', sans-serif;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.gq-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+}
+
+.gq-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.gq-results {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  text-align: center;
+}
+
+.gq-score-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.gq-score {
+  font-family: 'DM Serif Display', serif;
+  font-size: 48px;
+  font-weight: bold;
+  color: #6344A6;
+}
+
+.gq-score-detail {
+  font-size: 14px;
+  color: #888;
+}
+
+.gq-xp-earned {
+  font-size: 18px;
+  font-weight: bold;
+  color: #16a34a;
+  margin-bottom: 16px;
+}
+
+.gq-new-badges {
+  margin-bottom: 16px;
+}
+
+.gq-new-badges h4 {
+  color: #6344A6;
+  margin: 0 0 8px 0;
+}
+
+.gq-badge-toast {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f3f0fa;
+  border-radius: 20px;
+  padding: 6px 14px;
+  margin: 4px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #364659;
+  animation: badgeUnlock 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.gq-badge-toast:nth-child(2) { animation-delay: 0.15s; }
+.gq-badge-toast:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes badgeUnlock {
+  0% { opacity: 0; transform: scale(0.3) rotate(-10deg); }
+  60% { opacity: 1; transform: scale(1.15) rotate(3deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+.gq-review {
+  text-align: left;
+  margin-top: 16px;
+}
+
+.gq-review h4 {
+  color: #364659;
+  margin: 0 0 12px 0;
+}
+
+.gq-review-item {
+  border-left: 4px solid;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border-radius: 0 8px 8px 0;
+  background: #fafafa;
+}
+
+.gq-correct {
+  border-left-color: #16a34a;
+}
+
+.gq-wrong {
+  border-left-color: #dc2626;
+}
+
+.gq-review-q {
+  font-weight: bold;
+  font-size: 13px;
+  color: #364659;
+  margin-bottom: 4px;
+}
+
+.gq-review-answer {
+  font-size: 13px;
+  color: #555;
+}
+
+.gq-review-correct {
+  color: #16a34a;
+  font-weight: bold;
+}
+
+.gq-explanation {
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.gq-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.gq-back-btn {
+  background: #fff;
+  color: #6344A6;
+  border: 2px solid #6344A6;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: 'HK Sentiments', sans-serif;
+}
+
+.gq-back-btn:hover {
+  background-color: #f3f0fa;
+}

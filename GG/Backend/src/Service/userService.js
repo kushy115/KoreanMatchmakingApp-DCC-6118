@@ -151,13 +151,12 @@ let handleProfileCreation = (id, native_language, target_language, target_langua
     })
 }
 
-let handleProfileUpdate = (id, native_language, target_language, target_language_proficiency, age, gender, profession, mbti, zodiac, default_time_zone, visibility) => {
+let handleProfileUpdate = (id, native_language, target_language, target_language_proficiency, age, gender, profession, mbti, zodiac, default_time_zone, visibility, learning_goal, communication_style, commitment_level) => {
     return new Promise(async (resolve, reject) => {
         try {
             let userData = {};
             console.log("Updating profile for user ID:", id);
- 
-            // upsert: creates the row if it doesn't exist, updates it if it does
+
             await db.UserProfile.upsert({
                 id: id,
                 native_language: native_language,
@@ -169,7 +168,10 @@ let handleProfileUpdate = (id, native_language, target_language, target_language
                 mbti: mbti,
                 zodiac: zodiac,
                 default_time_zone: default_time_zone,
-                visibility: visibility
+                visibility: visibility,
+                learning_goal: learning_goal || null,
+                communication_style: communication_style || null,
+                commitment_level: commitment_level || null,
             });
  
             userData.errCode = 0;

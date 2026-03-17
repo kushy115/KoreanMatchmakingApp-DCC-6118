@@ -14,8 +14,11 @@ import recordingController from "../controller/recordingController.js"; // Add t
 import { getMeetingsForUser } from "../controller/meetingController.js";
 import fs from "fs";
 import gameRoutes from './gameRoutes.js';
+import gameLogicRoutes from './gameLogicRoutes.js';
 import teamRoutes from './teamRoutes.js';
 import questRoutes from './questRoutes.js';
+import badgeRoutes from './badgeRoutes.js';
+import challengeRoutes from './challengeRoutes.js';
 import uploadRoutes from './uploadRoutes.js';
 
 // ES module equivalent of __dirname
@@ -128,8 +131,11 @@ const initAPIRoute = (app) => {
     router.post('/upload-recording', upload.single('audio'), recordingController.uploadRecording);
 
     app.use('/api/games', gameRoutes);
+    app.use('/api/games', gameLogicRoutes);
     app.use('/api/teams', teamRoutes);
     app.use('/api/quests', questRoutes);
+    app.use('/api/badges', badgeRoutes);
+    app.use('/api/challenges', challengeRoutes);
     app.use('/api/upload', uploadRoutes);
 
     return app.use('/api/v1/', router)

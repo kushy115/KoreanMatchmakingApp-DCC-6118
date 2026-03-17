@@ -5,6 +5,7 @@ import initAPIRoute from './route/api.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { startMCPServer } from './mcp/server.js';
+import { syncBadgeDefinitions } from './Service/milestoneService.js';
 import { fileURLToPath } from 'url';
 import path from 'path';
  
@@ -39,6 +40,12 @@ startMCPServer().catch((err) => {
   console.error("Failed to start MCP server:", err);
 });
 
-app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`)
+app.listen(port, async () => {
+    console.log(`Example app listening at http://localhost:${port}`);
+    try {
+      await syncBadgeDefinitions();
+      console.log('Badge definitions synced.');
+    } catch (err) {
+      console.error('Badge sync skipped (tables may not exist yet):', err.message);
+    }
 })

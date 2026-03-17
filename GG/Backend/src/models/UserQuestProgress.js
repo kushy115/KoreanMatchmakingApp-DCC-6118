@@ -11,8 +11,8 @@ export default (sequelize, DataTypes) => {
           as: 'user',
         });
       }
-      if (models.Challenge) {
-        UserQuestProgress.belongsTo(models.Challenge, {
+      if (models.Quest) {
+        UserQuestProgress.belongsTo(models.Quest, {
           foreignKey: 'questId',
           as: 'quest',
         });

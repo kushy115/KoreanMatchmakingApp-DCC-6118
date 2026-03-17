@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { label: '🎮 Games',        path: '/GameSelection' },
   { label: '🔍 Find Friends', path: '/FriendSearch' },
   { label: '👥 Friends',      path: '/FriendsList' },
+  { label: '⚔️ Challenges',   path: '/Challenges' },
   { label: '🤝 Teams',        path: '/TeamLobby' },
   { label: '📅 Scheduler',    path: '/Scheduler' },
   { label: '🤖 AI Chat',      path: '/Assistant' },

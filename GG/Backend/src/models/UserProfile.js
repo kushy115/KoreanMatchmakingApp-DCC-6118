@@ -39,10 +39,22 @@ export default (sequelize, DataTypes) => {
       defaultValue: 'UTC'
     },
       rating: {
-      type: DataTypes.INTEGER,   // stores the average rating of a user
+      type: DataTypes.INTEGER,
       allowNull: true
     },
-      
+    learning_goal: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    communication_style: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    commitment_level: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 3,
+    },
     visibility: DataTypes.STRING
   }, {
     sequelize,

@@ -6,6 +6,7 @@ import './GameSelect.css';
 import { handleGetUserStatsApi } from '../Services/gameSelectionService';
 import Navbar from './NavBar';
 import { handleGetUserQuestsApi } from '../Services/questService';
+import { handleGetAllBadgesWithProgressApi } from '../Services/badgeService';
 import { getImageUrl } from '../Services/uploadImageService';
 
 const XP_PER_LEVEL = 500; // Must match the value in gameRoutes.js
@@ -24,6 +25,7 @@ function GameSelect() {
   const [completedChallenges, setCompletedChallenges] = useState([]);
   const [profileImage, setProfileImage] = useState(null);
   const [quests, setQuests] = useState([]);
+  const [badges, setBadges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -46,12 +48,20 @@ function GameSelect() {
       setQuests(data.quests || []);
     } catch (err) {
       console.log('Could not load quests:', err);
-      // Non-fatal — page still works without quests
+    }
+  };
+
+  const getBadges = async () => {
+    try {
+      const data = await handleGetAllBadgesWithProgressApi(id);
+      setBadges(data.badges || []);
+    } catch (err) {
+      console.log('Could not load badges:', err);
     }
   };
  
   useEffect(() => {
-    Promise.all([getStats(), getQuests()]).finally(() => setLoading(false));
+    Promise.all([getStats(), getQuests(), getBadges()]).finally(() => setLoading(false));
   }, []);
  
   const getXpPercent = () => Math.min(100, Math.round((xp / xpToNext) * 100));
@@ -139,7 +149,7 @@ function GameSelect() {
           ) : (
             <div className="quest-list">
               {quests.map((challenge) => {
-                const pct = Math.min(100, Math.round((quests.userProgress / challenge.goal) * 100));
+                const pct = Math.min(100, Math.round((challenge.userProgress / challenge.goal) * 100));
                 return (
                   <div key={challenge.id} className="quest-item">
                     <div className="quest-text">
@@ -157,7 +167,7 @@ function GameSelect() {
                         />
                       </div>
                       <div style={{ fontSize: 11, color: '#999', textAlign: 'right', marginTop: 2 }}>
-                        {quests.userProgress}/{challenge.goal}
+                        {challenge.userProgress}/{challenge.goal}
                       </div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
@@ -183,6 +193,43 @@ function GameSelect() {
         </div>
  
       </div>
+
+      {/* ── Badge Progress Tracker ── */}
+      {badges.length > 0 && (
+        <div className="badges-section">
+          <h3 className="badges-title">Badges</h3>
+          <div className="badges-grid">
+            {badges.map((badge) => {
+              const pct = badge.criteriaValue > 0
+                ? Math.min(100, Math.round((badge.currentProgress / badge.criteriaValue) * 100))
+                : 0;
+              return (
+                <div
+                  key={badge.id}
+                  className={`badge-card ${badge.earned ? 'badge-earned' : 'badge-locked'} badge-${badge.tier}`}
+                >
+                  <div className="badge-icon">{badge.icon}</div>
+                  <div className="badge-name">{badge.name}</div>
+                  <div className="badge-desc">{badge.description}</div>
+                  {!badge.earned && (
+                    <div className="badge-progress-container">
+                      <div className="badge-progress-track">
+                        <div className="badge-progress-fill" style={{ width: `${pct}%` }} />
+                      </div>
+                      <span className="badge-progress-text">
+                        {badge.currentProgress}/{badge.criteriaValue}
+                      </span>
+                    </div>
+                  )}
+                  {badge.earned && (
+                    <div className="badge-earned-label">Earned</div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

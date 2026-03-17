@@ -87,9 +87,11 @@ let handleProfileUpdate = async (req, res) => {
     let zodiac = req.body.zodiac;
     let default_time_zone = req.body.default_time_zone;
     let visibility = req.body.visibility;
+    let learning_goal = req.body.learning_goal;
+    let communication_style = req.body.communication_style;
+    let commitment_level = req.body.commitment_level;
     let id = req.body.id;
-    // Call handleProfileUpdate
-    let userData = await userService.handleProfileUpdate(id, native_language, target_language, target_language_proficiency, age, gender, profession, mbti, zodiac, default_time_zone, visibility)
+    let userData = await userService.handleProfileUpdate(id, native_language, target_language, target_language_proficiency, age, gender, profession, mbti, zodiac, default_time_zone, visibility, learning_goal, communication_style, commitment_level)
     console.log(`Updated user ${id} with the following values: `,userData)
     return res.status(200).json({
          errorCode: userData.errCode,

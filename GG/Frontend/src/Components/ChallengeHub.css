@@ -1,0 +1,125 @@
+.ch-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, rgba(34,193,195,1) 0%, rgba(253,187,45,1) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px 60px;
+  font-family: 'HK Sentiments', sans-serif;
+}
+
+.ch-loading { text-align: center; margin-top: 60px; font-size: 20px; color: #364659; }
+
+.ch-container { width: 100%; max-width: 650px; margin-top: 24px; }
+
+.ch-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+
+.ch-title {
+  font-family: 'DM Serif Display', serif;
+  color: #fff;
+  font-size: 28px;
+  margin: 0;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.ch-create-btn {
+  background: #fff;
+  color: #6344A6;
+  border: 2px solid #6344A6;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: 'HK Sentiments', sans-serif;
+  transition: background-color 0.2s;
+}
+.ch-create-btn:hover { background: #f3f0fa; }
+
+.ch-stats-bar {
+  display: flex;
+  justify-content: space-around;
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.ch-stat { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.ch-stat-val { font-family: 'DM Serif Display', serif; font-size: 22px; color: #6344A6; font-weight: bold; }
+.ch-stat-label { font-size: 11px; color: #888; }
+
+.ch-create-form {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.ch-create-form h4 { margin: 0 0 12px 0; color: #364659; font-family: 'DM Serif Display', serif; }
+
+.ch-form-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.ch-form-row label { width: 80px; font-size: 13px; color: #364659; font-weight: bold; }
+.ch-input, .ch-select {
+  flex: 1; padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc;
+  font-family: 'HK Sentiments', sans-serif; font-size: 13px;
+}
+
+.ch-send-btn {
+  background: #6344A6; color: #fff; border: none; border-radius: 8px;
+  padding: 10px 24px; font-size: 14px; font-weight: bold; cursor: pointer;
+  font-family: 'HK Sentiments', sans-serif; width: 100%;
+  transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.ch-send-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 8px rgba(0,0,0,0.15); }
+.ch-send-btn:disabled { opacity: 0.5; }
+
+.ch-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.ch-tab {
+  padding: 8px 18px; border-radius: 20px; border: 2px solid rgba(255,255,255,0.4);
+  background: transparent; color: #fff; font-size: 13px; font-weight: bold;
+  cursor: pointer; font-family: 'HK Sentiments', sans-serif; transition: all 0.2s;
+}
+.ch-tab:hover { background: rgba(255,255,255,0.15); }
+.ch-tab-active { background: #fff; color: #6344A6; border-color: #fff; }
+
+.ch-list { display: flex; flex-direction: column; gap: 10px; }
+.ch-empty { text-align: center; color: #fff; font-size: 14px; }
+
+.ch-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.ch-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.ch-opponent { font-family: 'DM Serif Display', serif; font-size: 16px; color: #364659; font-weight: bold; }
+
+.ch-status-badge {
+  font-size: 11px; color: #fff; padding: 3px 10px; border-radius: 12px; font-weight: bold; text-transform: uppercase;
+}
+
+.ch-card-details { display: flex; gap: 10px; margin-bottom: 8px; font-size: 13px; color: #888; }
+.ch-game-label { font-weight: bold; color: #6344A6; }
+
+.ch-score-row { font-size: 13px; color: #555; margin-bottom: 8px; display: flex; justify-content: space-between; }
+.ch-winner { color: #16a34a; font-weight: bold; }
+.ch-draw { color: #f59e0b; font-weight: bold; }
+
+.ch-card-actions { display: flex; gap: 8px; }
+
+.ch-accept-btn {
+  background: #16a34a; color: #fff; border: none; border-radius: 6px;
+  padding: 8px 18px; font-size: 13px; font-weight: bold; cursor: pointer;
+}
+.ch-decline-btn {
+  background: #dc2626; color: #fff; border: none; border-radius: 6px;
+  padding: 8px 18px; font-size: 13px; font-weight: bold; cursor: pointer;
+}
+.ch-play-btn {
+  background: #6344A6; color: #fff; border: none; border-radius: 8px;
+  padding: 10px 24px; font-size: 14px; font-weight: bold; cursor: pointer;
+  font-family: 'HK Sentiments', sans-serif; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}

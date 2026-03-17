@@ -1,0 +1,252 @@
+.tm-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, rgba(34,193,195,1) 0%, rgba(253,187,45,1) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px 60px;
+  font-family: 'HK Sentiments', sans-serif;
+}
+
+.tm-loading {
+  text-align: center;
+  margin-top: 60px;
+  font-size: 20px;
+  color: #364659;
+}
+
+.tm-container {
+  width: 100%;
+  max-width: 700px;
+  margin-top: 24px;
+}
+
+.tm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.tm-title {
+  font-family: 'DM Serif Display', serif;
+  color: #fff;
+  font-size: 28px;
+  margin: 0;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.tm-difficulty {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-family: 'HK Sentiments', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.tm-instructions {
+  text-align: center;
+  color: #fff;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.tm-board {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+}
+
+.tm-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  max-width: 280px;
+}
+
+.tm-col-label {
+  text-align: center;
+  font-family: 'DM Serif Display', serif;
+  color: #fff;
+  margin: 0 0 4px 0;
+  font-size: 16px;
+}
+
+.tm-card {
+  padding: 14px 16px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'HK Sentiments', sans-serif;
+}
+
+.tm-korean {
+  background-color: #fff;
+  color: #364659;
+}
+
+.tm-korean.tm-active {
+  border-color: #6344A6;
+  box-shadow: 0 0 0 3px rgba(99,68,166,0.3);
+}
+
+.tm-korean.tm-matched {
+  background-color: #e9e4f5;
+  border-color: #6344A6;
+}
+
+.tm-english {
+  background-color: #fff;
+  color: #364659;
+}
+
+.tm-english:hover:not(:disabled) {
+  border-color: #6344A6;
+}
+
+.tm-used {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.tm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.tm-submit-btn {
+  background-color: #6344A6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 32px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: 'HK Sentiments', sans-serif;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.tm-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+}
+
+.tm-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.tm-reset-btn {
+  background-color: #fff;
+  color: #6344A6;
+  border: 2px solid #6344A6;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: 'HK Sentiments', sans-serif;
+  transition: background-color 0.2s;
+}
+
+.tm-reset-btn:hover {
+  background-color: #f3f0fa;
+}
+
+.tm-results {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  text-align: center;
+}
+
+.tm-score-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.tm-score {
+  font-family: 'DM Serif Display', serif;
+  font-size: 48px;
+  font-weight: bold;
+  color: #6344A6;
+}
+
+.tm-score-detail {
+  font-size: 14px;
+  color: #888;
+}
+
+.tm-xp-earned {
+  font-size: 18px;
+  font-weight: bold;
+  color: #16a34a;
+  margin-bottom: 16px;
+}
+
+.tm-new-badges {
+  margin-bottom: 16px;
+}
+
+.tm-new-badges h4 {
+  color: #6344A6;
+  margin: 0 0 8px 0;
+}
+
+.tm-badge-toast {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f3f0fa;
+  border-radius: 20px;
+  padding: 6px 14px;
+  margin: 4px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #364659;
+  animation: badgeUnlock 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.tm-badge-toast:nth-child(2) { animation-delay: 0.15s; }
+.tm-badge-toast:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes badgeUnlock {
+  0% { opacity: 0; transform: scale(0.3) rotate(-10deg); }
+  60% { opacity: 1; transform: scale(1.15) rotate(3deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+.tm-badge-icon {
+  font-size: 18px;
+}
+
+.tm-correct-pairs {
+  margin-top: 16px;
+}
+
+.tm-correct-pairs h4 {
+  color: #364659;
+  margin: 0 0 10px 0;
+}
+
+.tm-pair-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 14px;
+  color: #364659;
+  border-bottom: 1px solid #f0f0f0;
+}
