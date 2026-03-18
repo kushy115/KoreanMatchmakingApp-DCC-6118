@@ -266,8 +266,8 @@ function UpdateProfile() {
         <div className="up-card">
           <div className="up-header">
             <div>
-              <h1 className="up-title">Set Profile</h1>
-              <p className="up-subtitle">Quick setup — you can always edit later.</p>
+              <h1 className="up-title">Edit Profile</h1>
+              <p className="up-subtitle">Update your profile details anytime.</p>
             </div>
             <div className="up-progress">
               <div className="up-progress-top">
@@ -465,7 +465,7 @@ function UpdateProfile() {
                 </button>
               ) : (
                 <button className="up-btn-primary" type="submit">
-                  Save & Finish
+                  Save Changes
                 </button>
               )}
             </div>

@@ -5,6 +5,11 @@ export const createChallenge = async (challengerId, challengedId, gameType, diff
   return response;
 };
 
+export const getChallengeFriends = async (userId) => {
+  const response = await axios.get(`/api/challenges/friends/${userId}`);
+  return response;
+};
+
 export const getUserChallenges = async (userId, status) => {
   const params = status ? `?status=${status}` : '';
   const response = await axios.get(`/api/challenges/user/${userId}${params}`);

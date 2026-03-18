@@ -1,6 +1,39 @@
 import { pool } from '../config/connectDB.js'; //TOWNSHEND: this was formally connected to sequelize...
 //but the methods were using .execute method, so I changed the import to the pool object
 import db from '../models/index.js';
+
+const READD_COOLDOWN_HOURS = 24;
+
+const isProfileComplete = (profile) => {
+  if (!profile) return false;
+
+  const hasValue = (value) => {
+    if (value === null || value === undefined) return false;
+    if (typeof value === 'string') return value.trim().length > 0;
+    return true;
+  };
+
+  // Keep this aligned with actual required fields in profile setup/update UI.
+  // Optional fields should not block friend discovery.
+  return Boolean(
+    hasValue(profile.native_language) &&
+    hasValue(profile.target_language) &&
+    hasValue(profile.target_language_proficiency) &&
+    hasValue(profile.age) &&
+    hasValue(profile.profession)
+  );
+};
+
+const getProfileByUserId = async (userId) => {
+  const [rows] = await pool.execute('SELECT * FROM UserProfile WHERE id = ?', [userId]);
+  return rows[0] || null;
+};
+
+const sortedPair = (userId1, userId2) => {
+  const a = Math.min(Number(userId1), Number(userId2));
+  const b = Math.max(Number(userId1), Number(userId2));
+  return { a, b };
+};
 //TOWNSHEND: getAllUsers may be the best way to sort users on a page since all data on a UserAccount is attached to the user
 // I can explore this more
 let getAllUsers = async (req, res) => {
@@ -72,7 +105,22 @@ const getUserPreferences = async (req , res) => {
 // but may not be good for sorting.
 const getUserNames = async (req, res) => {
     try {
-      const [users] = await pool.execute(`SELECT * FROM UserAccount`); // uses mysql2 function to access database
+      const requesterId = Number(req.query.requesterId || 0);
+      if (requesterId) {
+        const requesterProfile = await getProfileByUserId(requesterId);
+        if (!isProfileComplete(requesterProfile)) {
+          return res.status(403).json({
+            message: 'Complete your profile before searching for friends.',
+            code: 'PROFILE_INCOMPLETE',
+          });
+        }
+      }
+
+      const sql = requesterId
+        ? `SELECT * FROM UserAccount WHERE id <> ?`
+        : `SELECT * FROM UserAccount`;
+      const params = requesterId ? [requesterId] : [];
+      const [users] = await pool.execute(sql, params); // uses mysql2 function to access database
       res.status(200).json({
         message: 'ok',
         data: users
@@ -361,9 +409,7 @@ let removeFriend = async (req, res) => {
 
 
 let addTrueFriend = async (req, res) => {
-
-    try {
-      console.log('addTrueFriend hit with body:', req.body);
+  try {
       let { userId1, userId2 } = req.body;
       userId1 = Number(userId1);
       userId2 = Number(userId2);
@@ -375,18 +421,76 @@ let addTrueFriend = async (req, res) => {
         return res.status(400).json({ error: 'Cannot friend yourself' });
       }
 
-      const a = Math.min(userId1, userId2);
-      const b = Math.max(userId1, userId2);
+      const requesterProfile = await getProfileByUserId(userId1);
+      if (!isProfileComplete(requesterProfile)) {
+        return res.status(403).json({
+          error: 'Complete your profile before sending friend requests.',
+          code: 'PROFILE_INCOMPLETE',
+        });
+      }
 
-      // Insert (handle duplicates)
-      const sql = 'INSERT INTO FriendsModel (user1_id, user2_id) VALUES (?, ?)';
-      await pool.execute(sql, [a, b]);
+      const [users] = await pool.execute(
+        'SELECT id FROM UserAccount WHERE id IN (?, ?)',
+        [userId1, userId2]
+      );
+      if (users.length !== 2) {
+        return res.status(404).json({ error: 'One or both users do not exist' });
+      }
 
-      return res.status(201).json({ message: 'Friend added', user_one_id: a, user_two_id: b });
+      const { a, b } = sortedPair(userId1, userId2);
+
+      const [friendRows] = await pool.execute(
+        'SELECT user1_ID, user2_ID FROM FriendsModel WHERE user1_ID = ? AND user2_ID = ?',
+        [a, b]
+      );
+      if (friendRows.length > 0) {
+        return res.status(409).json({ error: 'Friendship already exists' });
+      }
+
+      const [requestRows] = await pool.execute(
+        'SELECT * FROM FriendRequest WHERE pairUser1Id = ? AND pairUser2Id = ? LIMIT 1',
+        [a, b]
+      );
+      const existing = requestRows[0];
+      if (existing) {
+        if (existing.status === 'pending') {
+          if (Number(existing.requesterId) === userId1 && Number(existing.recipientId) === userId2) {
+            return res.status(409).json({ error: 'Friend request already pending' });
+          }
+          return res.status(409).json({ error: 'You already have an incoming friend request from this user' });
+        }
+        if (existing.status === 'removed' && existing.blockedUntil && new Date(existing.blockedUntil) > new Date()) {
+          return res.status(429).json({
+            error: `You must wait ${READD_COOLDOWN_HOURS} hours after removing before re-adding`,
+            code: 'READD_COOLDOWN',
+            blockedUntil: existing.blockedUntil,
+          });
+        }
+      }
+
+      await pool.execute(
+        `
+        INSERT INTO FriendRequest
+          (requesterId, recipientId, pairUser1Id, pairUser2Id, status, respondedAt, lastActionBy, blockedUntil, createdAt, updatedAt)
+        VALUES (?, ?, ?, ?, 'pending', NULL, ?, NULL, NOW(), NOW())
+        ON DUPLICATE KEY UPDATE
+          requesterId = VALUES(requesterId),
+          recipientId = VALUES(recipientId),
+          status = 'pending',
+          respondedAt = NULL,
+          lastActionBy = VALUES(lastActionBy),
+          blockedUntil = NULL,
+          updatedAt = NOW()
+        `,
+        [userId1, userId2, a, b, userId1]
+      );
+
+      return res.status(201).json({
+        message: 'Friend request sent',
+        requesterId: userId1,
+        recipientId: userId2,
+      });
   } catch (err) {
-    if (err.code === 'ER_DUP_ENTRY') {
-      return res.status(409).json({ error: 'Friendship already exists' });
-    }
     console.error('addTrueFriend error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
@@ -394,7 +498,11 @@ let addTrueFriend = async (req, res) => {
 
 let removeTrueFriend = async (req, res) => {
   try {
-    const { userId1, userId2 } = req.body; // extract IDs from body
+    const userId1 = Number(req.body.userId1);
+    const userId2 = Number(req.body.userId2);
+    if (!userId1 || !userId2) {
+      return res.status(400).json({ error: 'userId1 and userId2 are required' });
+    }
 
     const sql = `
       DELETE FROM FriendsModel
@@ -404,7 +512,28 @@ let removeTrueFriend = async (req, res) => {
     const [result] = await pool.execute(sql, [userId1, userId2, userId2, userId1]);
 
     if (result.affectedRows > 0) {
-      res.status(200).json({ message: 'Friend removed successfully' });
+      const { a, b } = sortedPair(userId1, userId2);
+      await pool.execute(
+        `
+        INSERT INTO FriendRequest
+          (requesterId, recipientId, pairUser1Id, pairUser2Id, status, respondedAt, lastActionBy, blockedUntil, createdAt, updatedAt)
+        VALUES (?, ?, ?, ?, 'removed', NOW(), ?, DATE_ADD(NOW(), INTERVAL ${READD_COOLDOWN_HOURS} HOUR), NOW(), NOW())
+        ON DUPLICATE KEY UPDATE
+          requesterId = VALUES(requesterId),
+          recipientId = VALUES(recipientId),
+          status = 'removed',
+          respondedAt = NOW(),
+          lastActionBy = VALUES(lastActionBy),
+          blockedUntil = DATE_ADD(NOW(), INTERVAL ${READD_COOLDOWN_HOURS} HOUR),
+          updatedAt = NOW()
+        `,
+        [userId1, userId2, a, b, userId1]
+      );
+
+      res.status(200).json({
+        message: 'Friend removed successfully',
+        readdAvailableInHours: READD_COOLDOWN_HOURS,
+      });
     } else {
       res.status(404).json({ message: 'No friendship found' });
     }
@@ -441,6 +570,113 @@ let getTrueFriendsList = async (req, res) => {
     return res.status(200).json({ friendsList: friends });
   } catch (err) {
     console.error('Error retrieving friends:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+let getFriendRequests = async (req, res) => {
+  try {
+    const userId = Number(req.params.userId);
+    if (!userId) return res.status(400).json({ error: 'userId is required' });
+
+    const [incoming] = await pool.query(
+      `
+      SELECT fr.id, fr.requesterId, fr.recipientId, fr.status, fr.createdAt, fr.updatedAt,
+             ua.id as requesterUserId, ua.firstName as requesterFirstName, ua.lastName as requesterLastName, ua.email as requesterEmail
+      FROM FriendRequest fr
+      JOIN UserAccount ua ON ua.id = fr.requesterId
+      WHERE fr.recipientId = ? AND fr.status = 'pending'
+      ORDER BY fr.createdAt DESC
+      `,
+      [userId]
+    );
+
+    const [outgoing] = await pool.query(
+      `
+      SELECT fr.id, fr.requesterId, fr.recipientId, fr.status, fr.createdAt, fr.updatedAt,
+             ua.id as recipientUserId, ua.firstName as recipientFirstName, ua.lastName as recipientLastName, ua.email as recipientEmail
+      FROM FriendRequest fr
+      JOIN UserAccount ua ON ua.id = fr.recipientId
+      WHERE fr.requesterId = ? AND fr.status = 'pending'
+      ORDER BY fr.createdAt DESC
+      `,
+      [userId]
+    );
+
+    return res.status(200).json({ incoming, outgoing });
+  } catch (err) {
+    console.error('Error retrieving friend requests:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+let acceptFriendRequest = async (req, res) => {
+  try {
+    const requestId = Number(req.params.requestId);
+    const userId = Number(req.body.userId);
+    if (!requestId || !userId) {
+      return res.status(400).json({ error: 'requestId and userId are required' });
+    }
+
+    const request = await db.FriendRequest.findByPk(requestId);
+    if (!request) return res.status(404).json({ error: 'Friend request not found' });
+    if (request.status !== 'pending') {
+      return res.status(400).json({ error: `Friend request is already ${request.status}` });
+    }
+    if (Number(request.recipientId) !== userId) {
+      return res.status(403).json({ error: 'Only the recipient can accept this request' });
+    }
+
+    const { a, b } = sortedPair(request.requesterId, request.recipientId);
+    await db.sequelize.transaction(async (transaction) => {
+      await db.sequelize.query(
+        'INSERT INTO FriendsModel (user1_ID, user2_ID) VALUES (?, ?) ON DUPLICATE KEY UPDATE user1_ID = user1_ID',
+        { replacements: [a, b], transaction }
+      );
+      await request.update(
+        {
+          status: 'accepted',
+          respondedAt: new Date(),
+          lastActionBy: userId,
+          blockedUntil: null,
+        },
+        { transaction }
+      );
+    });
+
+    return res.status(200).json({ message: 'Friend request accepted' });
+  } catch (err) {
+    console.error('Error accepting friend request:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+let rejectFriendRequest = async (req, res) => {
+  try {
+    const requestId = Number(req.params.requestId);
+    const userId = Number(req.body.userId);
+    if (!requestId || !userId) {
+      return res.status(400).json({ error: 'requestId and userId are required' });
+    }
+
+    const request = await db.FriendRequest.findByPk(requestId);
+    if (!request) return res.status(404).json({ error: 'Friend request not found' });
+    if (request.status !== 'pending') {
+      return res.status(400).json({ error: `Friend request is already ${request.status}` });
+    }
+    if (Number(request.recipientId) !== userId) {
+      return res.status(403).json({ error: 'Only the recipient can reject this request' });
+    }
+
+    await request.update({
+      status: 'rejected',
+      respondedAt: new Date(),
+      lastActionBy: userId,
+    });
+
+    return res.status(200).json({ message: 'Friend request rejected' });
+  } catch (err) {
+    console.error('Error rejecting friend request:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -547,6 +783,7 @@ let deleteMeeting = async (req, res) => {
 const APIController = { 
     addFriend, getAllUsers, createNewUser, updateUser, deleteUser, getUserNames, getUserPreferences, getUserProfile, updateRating, 
     addComment, getUserProficiencyAndRating, addToFriendsList, getFriendsList,  removeFriend, addTrueFriend, removeTrueFriend, 
-    getTrueFriendsList, getUserAvailability, createMeeting, deleteMeeting
+    getTrueFriendsList, getUserAvailability, createMeeting, deleteMeeting,
+    getFriendRequests, acceptFriendRequest, rejectFriendRequest
 };
 export default APIController;

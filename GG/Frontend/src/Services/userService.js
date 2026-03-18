@@ -132,6 +132,18 @@ export const handleAddTrueFriend = (userId1, userId2) => {
   return axios.post('/api/v1/addTrueFriend', { userId1, userId2 });
 };
 
+export const handleGetFriendRequests = async (userId) => {
+  return axios.get(`/api/v1/friendRequests/${userId}`);
+};
+
+export const handleAcceptFriendRequest = async (requestId, userId) => {
+  return axios.put(`/api/v1/friendRequests/${requestId}/accept`, { userId });
+};
+
+export const handleRejectFriendRequest = async (requestId, userId) => {
+  return axios.put(`/api/v1/friendRequests/${requestId}/reject`, { userId });
+};
+
 export const handleRemoveTrueFriend = async (userId1, userId2) => {
   const { data } = await axios.delete('/api/v1/removeTrueFriend', {
     data: { userId1, userId2 }

@@ -7,6 +7,7 @@ import './PronunciationDrill.css';
 function PronunciationDrill() {
   const [search] = useSearchParams();
   const id = search.get('id');
+  const challengeId = search.get('challengeId');
   const navigate = useNavigate();
 
   const [phrases, setPhrases] = useState([]);
@@ -25,7 +26,7 @@ function PronunciationDrill() {
     setPracticed(new Set());
     setShowRomanization(false);
     try {
-      const data = await startPronunciationDrill(id, diff || difficulty);
+      const data = await startPronunciationDrill(id, diff || difficulty, 5, challengeId);
       setPhrases(data.phrases || []);
     } catch (err) {
       console.error('Failed to start pronunciation drill:', err);

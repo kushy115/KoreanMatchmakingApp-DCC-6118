@@ -6,8 +6,8 @@ import {
   declineChallenge,
   createChallenge,
   getChallengeStats,
+  getChallengeFriends,
 } from '../Services/challengeService';
-import { handleGetUserStatsApi } from '../Services/gameSelectionService';
 import Navbar from './NavBar';
 import './ChallengeHub.css';
 
@@ -45,11 +45,11 @@ function ChallengeHub() {
 
   const loadFriends = async () => {
     try {
-      const { default: axios } = await import('../Utils/axios');
-      const res = await axios.get(`/api/v1/friends/${id}`);
-      setFriends(res.friends || res || []);
+      const res = await getChallengeFriends(id);
+      setFriends(Array.isArray(res.friends) ? res.friends : []);
     } catch (err) {
       console.error('Could not load friends:', err);
+      setFriends([]);
     }
   };
 
@@ -83,6 +83,12 @@ function ChallengeHub() {
     } catch (err) {
       console.error('Failed to create challenge:', err);
     }
+  };
+
+  const getFriendOptionLabel = (friend) => {
+    if (friend.label) return friend.label;
+    const name = `${friend.firstName || ''} ${friend.lastName || ''}`.trim();
+    return name || `User #${friend.id}`;
   };
 
   const handlePlayChallenge = (challenge) => {
@@ -149,13 +155,18 @@ function ChallengeHub() {
             <h4>Send a Challenge</h4>
             <div className="ch-form-row">
               <label>Opponent</label>
-              <input
-                type="number"
-                placeholder="Friend's User ID"
+              <select
                 value={friendId}
                 onChange={e => setFriendId(e.target.value)}
-                className="ch-input"
-              />
+                className="ch-select"
+              >
+                <option value="">Select a friend</option>
+                {friends.map((friend) => (
+                  <option key={friend.id} value={friend.id}>
+                    {getFriendOptionLabel(friend)}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="ch-form-row">
               <label>Game</label>

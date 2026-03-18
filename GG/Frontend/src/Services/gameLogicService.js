@@ -1,7 +1,7 @@
 import axios from '../Utils/axios';
 
-export const startTermMatching = async (userId, difficulty = 'Beginner', count = 6) => {
-  const response = await axios.post('/api/games/term-matching/start', { userId, difficulty, count });
+export const startTermMatching = async (userId, difficulty = 'Beginner', count = 6, challengeId = null) => {
+  const response = await axios.post('/api/games/term-matching/start', { userId, difficulty, count, challengeId });
   return response;
 };
 
@@ -10,8 +10,8 @@ export const submitTermMatching = async (userId, answers) => {
   return response;
 };
 
-export const startGrammarQuiz = async (userId, difficulty = 'Beginner', count = 5) => {
-  const response = await axios.post('/api/games/grammar-quiz/start', { userId, difficulty, count });
+export const startGrammarQuiz = async (userId, difficulty = 'Beginner', count = 5, challengeId = null) => {
+  const response = await axios.post('/api/games/grammar-quiz/start', { userId, difficulty, count, challengeId });
   return response;
 };
 
@@ -20,8 +20,8 @@ export const submitGrammarQuiz = async (userId, answers) => {
   return response;
 };
 
-export const startPronunciationDrill = async (userId, difficulty = 'Beginner', count = 5) => {
-  const response = await axios.post('/api/games/pronunciation-drill/start', { userId, difficulty, count });
+export const startPronunciationDrill = async (userId, difficulty = 'Beginner', count = 5, challengeId = null) => {
+  const response = await axios.post('/api/games/pronunciation-drill/start', { userId, difficulty, count, challengeId });
   return response;
 };
 

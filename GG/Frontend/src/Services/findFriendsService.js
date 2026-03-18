@@ -22,8 +22,9 @@ const handleGetUserPreferencesApi = () => {
     return axios.get('/api/v1/user-preferences');
 };
 
-const handleGetUserNamesApi = () => {
-    return axios.get('/api/v1/user-names'); // Fetch all user names
+const handleGetUserNamesApi = (requesterId) => {
+    const q = requesterId ? `?requesterId=${requesterId}` : '';
+    return axios.get(`/api/v1/user-names${q}`); // Fetch all user names
 };
 
 const handleAddFriendApi = (userId1, userId2, userInfo) => {

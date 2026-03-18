@@ -7,6 +7,7 @@ import './GrammarQuiz.css';
 function GrammarQuiz() {
   const [search] = useSearchParams();
   const id = search.get('id');
+  const challengeId = search.get('challengeId');
   const navigate = useNavigate();
 
   const [questions, setQuestions] = useState([]);
@@ -23,7 +24,7 @@ function GrammarQuiz() {
     setCurrentQ(0);
     setAnswers([]);
     try {
-      const data = await startGrammarQuiz(id, diff || difficulty);
+      const data = await startGrammarQuiz(id, diff || difficulty, 5, challengeId);
       setQuestions(data.questions || []);
       setAnswers(new Array((data.questions || []).length).fill(null));
     } catch (err) {

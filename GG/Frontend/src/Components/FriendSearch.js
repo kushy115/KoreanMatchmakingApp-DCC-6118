@@ -62,6 +62,7 @@ const FriendSearch = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [profileBlockedMessage, setProfileBlockedMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [selectedAvailability, setSelectedAvailability] = useState(null);
   const [allInterests, setAllInterests] = useState([]);
@@ -73,7 +74,7 @@ const FriendSearch = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userResponse = await handleGetUserNamesApi();
+        const userResponse = await handleGetUserNamesApi(id);
         const profilesResponse = await handleGetUserPreferencesApi();
 
         const mergedUsers = await Promise.all(
@@ -87,13 +88,23 @@ const FriendSearch = () => {
           })
         );
 
-        const visibleUsers = mergedUsers.filter((u) => u.visibility === 'Show');
+        const visibleUsers = mergedUsers.filter(
+          (u) => u.visibility === 'Show' && Number(u.id) !== Number(id)
+        );
         setUserNames(visibleUsers);
         setAllUserNames(visibleUsers);
         setCurrentUser(getUserData());
         setLoading(false);
       } catch (err) {
-        setError(err);
+        const code = err?.response?.data?.code;
+        if (code === 'PROFILE_INCOMPLETE') {
+          setProfileBlockedMessage(
+            err?.response?.data?.message || 'Complete your profile before finding friends.'
+          );
+          setError(null);
+        } else {
+          setError(err);
+        }
         setLoading(false);
       }
     };
@@ -131,10 +142,10 @@ const FriendSearch = () => {
   const handleQuickAddFriend = async (user) => {
     try {
       await handleAddTrueFriend(Number(id), Number(user.id));
-      flash(`Added ${user.firstName} ${user.lastName} to your friends!`);
+      flash(`Friend request sent to ${user.firstName} ${user.lastName}`);
     } catch (err) {
-      const msg = err?.response?.data?.error || err.message;
-      flash(msg === 'Friendship already exists' ? 'Already friends!' : `Could not add friend: ${msg}`);
+      const msg = err?.response?.data?.error || err.message || 'Could not send request';
+      flash(`Could not add friend: ${msg}`);
     }
   };
 
@@ -239,6 +250,14 @@ const FriendSearch = () => {
   };
 
   if (loading) return <div className="fs-page"><Navbar id={id} /><p style={{ textAlign: 'center', marginTop: 60 }}>Loading...</p></div>;
+  if (profileBlockedMessage) {
+    return (
+      <div className="fs-page">
+        <Navbar id={id} />
+        <p style={{ textAlign: 'center', marginTop: 60, color: '#b45309' }}>{profileBlockedMessage}</p>
+      </div>
+    );
+  }
   if (error) return <div className="fs-page"><Navbar id={id} /><p style={{ textAlign: 'center', marginTop: 60, color: '#dc2626' }}>Error loading users.</p></div>;
 
   return (

@@ -11,6 +11,7 @@ import { incrementGameStat, checkAndAwardBadges } from '../Service/milestoneServ
 
 const router = express.Router();
 const XP_PER_LEVEL = 500;
+const CHALLENGE_ACTIVE_STATUSES = ['accepted', 'in_progress'];
 
 const activeSessions = new Map();
 
@@ -88,8 +89,91 @@ async function incrementQuests(userId, gameType) {
   }
 }
 
+async function resolveChallengeForSession(userId, gameType, explicitChallengeId = null) {
+  if (!db.Challenge) return null;
+  const { Op } = db.Sequelize;
+
+  // If the client provided a challengeId, validate ownership/game/status.
+  if (explicitChallengeId) {
+    const challenge = await db.Challenge.findByPk(explicitChallengeId);
+    if (!challenge) return null;
+
+    const belongsToUser = Number(challenge.challengerId) === Number(userId)
+      || Number(challenge.challengedId) === Number(userId);
+    const validGame = challenge.gameType === gameType;
+    const validStatus = CHALLENGE_ACTIVE_STATUSES.includes(challenge.status);
+
+    if (!belongsToUser || !validGame || !validStatus) return null;
+    return challenge.id;
+  }
+
+  // Backward-compatible fallback:
+  // if no challengeId is sent, bind to the user's latest active challenge
+  // for this game where the user still has no recorded score.
+  const challenge = await db.Challenge.findOne({
+    where: {
+      gameType,
+      status: { [Op.in]: CHALLENGE_ACTIVE_STATUSES },
+      [Op.or]: [
+        { challengerId: userId, challengerScore: null },
+        { challengedId: userId, challengedScore: null },
+      ],
+    },
+    order: [['updatedAt', 'DESC']],
+  });
+
+  if (!challenge) return null;
+  return challenge.id;
+}
+
+async function updateChallengeFromGameResult(userId, challengeId, score) {
+  if (!db.Challenge || !challengeId || score === undefined || score === null) return;
+
+  await db.sequelize.transaction(async (transaction) => {
+    const challenge = await db.Challenge.findByPk(challengeId, {
+      transaction,
+      lock: transaction.LOCK.UPDATE,
+    });
+    if (!challenge) return;
+
+    if (['completed', 'declined', 'expired'].includes(challenge.status)) return;
+
+    const updates = {};
+    if (Number(challenge.challengerId) === Number(userId) && challenge.challengerScore === null) {
+      updates.challengerScore = score;
+    }
+    if (Number(challenge.challengedId) === Number(userId) && challenge.challengedScore === null) {
+      updates.challengedScore = score;
+    }
+
+    // If no score was applied, user is not part of challenge or has already submitted.
+    if (Object.keys(updates).length === 0) return;
+
+    if (challenge.status === 'accepted') {
+      updates.status = 'in_progress';
+    }
+
+    const nextChallengerScore = updates.challengerScore ?? challenge.challengerScore;
+    const nextChallengedScore = updates.challengedScore ?? challenge.challengedScore;
+
+    if (nextChallengerScore !== null && nextChallengedScore !== null) {
+      let winnerId = null;
+      if (nextChallengerScore > nextChallengedScore) winnerId = challenge.challengerId;
+      else if (nextChallengedScore > nextChallengerScore) winnerId = challenge.challengedId;
+
+      updates.status = 'completed';
+      updates.winnerId = winnerId;
+      updates.completedAt = new Date();
+    }
+
+    await challenge.update(updates, { transaction });
+  });
+}
+
 async function saveGameSession(userId, gameType, difficulty, result, challengeId = null) {
   try {
+    const resolvedChallengeId = await resolveChallengeForSession(userId, gameType, challengeId);
+
     if (db.GameSession) {
       await db.GameSession.create({
         userId,
@@ -100,10 +184,12 @@ async function saveGameSession(userId, gameType, difficulty, result, challengeId
         total: result.total || null,
         xpEarned: result.xpEarned || 0,
         status: 'completed',
-        challengeId,
+        challengeId: resolvedChallengeId,
         completedAt: new Date(),
       });
     }
+
+    await updateChallengeFromGameResult(userId, resolvedChallengeId, result.score);
   } catch (err) {
     console.error('Failed to persist game session (non-fatal):', err.message);
   }
@@ -133,12 +219,14 @@ router.post('/term-matching/start', async (req, res) => {
     const { userId, difficulty = 'Beginner', count = 6, challengeId } = req.body;
     if (!userId) return res.status(400).json({ error: 'userId is required' });
 
+    const resolvedChallengeId = await resolveChallengeForSession(userId, 'term-matching', challengeId);
     const round = getTermMatchingRound(difficulty, count);
-    storeSession(userId, 'term-matching', { pairs: round.pairs, difficulty, challengeId });
+    storeSession(userId, 'term-matching', { pairs: round.pairs, difficulty, challengeId: resolvedChallengeId });
 
     return res.status(200).json({
       pairs: round.pairs.map(p => ({ id: p.id, korean: p.korean })),
       englishOptions: round.shuffledEnglish,
+      challengeId: resolvedChallengeId,
     });
   } catch (err) {
     console.error('Error starting term matching:', err);
@@ -189,10 +277,11 @@ router.post('/grammar-quiz/start', async (req, res) => {
     const { userId, difficulty = 'Beginner', count = 5, challengeId } = req.body;
     if (!userId) return res.status(400).json({ error: 'userId is required' });
 
+    const resolvedChallengeId = await resolveChallengeForSession(userId, 'grammar-quiz', challengeId);
     const questions = getGrammarQuizRound(difficulty, count);
-    storeSession(userId, 'grammar-quiz', { questions, difficulty, challengeId });
+    storeSession(userId, 'grammar-quiz', { questions, difficulty, challengeId: resolvedChallengeId });
 
-    return res.status(200).json({ questions });
+    return res.status(200).json({ questions, challengeId: resolvedChallengeId });
   } catch (err) {
     console.error('Error starting grammar quiz:', err);
     return res.status(500).json({ error: 'Internal server error' });
@@ -241,10 +330,11 @@ router.post('/pronunciation-drill/start', async (req, res) => {
     const { userId, difficulty = 'Beginner', count = 5, challengeId } = req.body;
     if (!userId) return res.status(400).json({ error: 'userId is required' });
 
+    const resolvedChallengeId = await resolveChallengeForSession(userId, 'pronunciation-drill', challengeId);
     const phrases = getPronunciationDrillRound(difficulty, count);
-    storeSession(userId, 'pronunciation-drill', { phrases, difficulty, challengeId });
+    storeSession(userId, 'pronunciation-drill', { phrases, difficulty, challengeId: resolvedChallengeId });
 
-    return res.status(200).json({ phrases });
+    return res.status(200).json({ phrases, challengeId: resolvedChallengeId });
   } catch (err) {
     console.error('Error starting pronunciation drill:', err);
     return res.status(500).json({ error: 'Internal server error' });

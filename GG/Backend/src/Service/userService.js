@@ -156,22 +156,28 @@ let handleProfileUpdate = (id, native_language, target_language, target_language
         try {
             let userData = {};
             console.log("Updating profile for user ID:", id);
+            const existing = await db.UserProfile.findOne({ where: { id } });
+            const keepIfEmpty = (incoming, current) => {
+                if (incoming === undefined || incoming === null) return current ?? null;
+                if (typeof incoming === 'string' && incoming.trim() === '') return current ?? null;
+                return incoming;
+            };
 
             await db.UserProfile.upsert({
                 id: id,
-                native_language: native_language,
-                target_language: target_language,
-                target_language_proficiency: target_language_proficiency,
-                age: age,
-                gender: gender,
-                profession: profession,
-                mbti: mbti,
-                zodiac: zodiac,
-                default_time_zone: default_time_zone,
-                visibility: visibility,
-                learning_goal: learning_goal || null,
-                communication_style: communication_style || null,
-                commitment_level: commitment_level || null,
+                native_language: keepIfEmpty(native_language, existing?.native_language),
+                target_language: keepIfEmpty(target_language, existing?.target_language),
+                target_language_proficiency: keepIfEmpty(target_language_proficiency, existing?.target_language_proficiency),
+                age: keepIfEmpty(age, existing?.age),
+                gender: keepIfEmpty(gender, existing?.gender),
+                profession: keepIfEmpty(profession, existing?.profession),
+                mbti: keepIfEmpty(mbti, existing?.mbti),
+                zodiac: keepIfEmpty(zodiac, existing?.zodiac),
+                default_time_zone: keepIfEmpty(default_time_zone, existing?.default_time_zone || 'UTC'),
+                visibility: keepIfEmpty(visibility, existing?.visibility),
+                learning_goal: keepIfEmpty(learning_goal, existing?.learning_goal),
+                communication_style: keepIfEmpty(communication_style, existing?.communication_style),
+                commitment_level: keepIfEmpty(commitment_level, existing?.commitment_level),
             });
  
             userData.errCode = 0;

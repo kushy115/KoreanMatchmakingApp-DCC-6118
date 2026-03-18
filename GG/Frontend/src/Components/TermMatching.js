@@ -7,6 +7,7 @@ import './TermMatching.css';
 function TermMatching() {
   const [search] = useSearchParams();
   const id = search.get('id');
+  const challengeId = search.get('challengeId');
   const navigate = useNavigate();
 
   const [pairs, setPairs] = useState([]);
@@ -24,7 +25,7 @@ function TermMatching() {
     setSelected({});
     setActivePairId(null);
     try {
-      const data = await startTermMatching(id, diff || difficulty);
+      const data = await startTermMatching(id, diff || difficulty, 6, challengeId);
       setPairs(data.pairs || []);
       setEnglishOptions(data.englishOptions || []);
     } catch (err) {

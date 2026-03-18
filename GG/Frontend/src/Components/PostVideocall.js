@@ -131,25 +131,18 @@ function PostVideocall() {
     try {
       console.log(`Calling addTrueFriend for userId1=${id}, userId2=${friend.id}`);
       await handleAddTrueFriend(Number(id), Number(friend.id));
-
-      // Optimistically update friends state
-      setFriends(prev => [
-        ...prev,
-        {
-          id: friend.id,
-          firstName: friend.firstName,
-          lastName: friend.lastName,
-          email: friend.email,
-        },
-      ]);
-
-      setSuccessMessage('User has been Successfully Added to your Friends List');
+      setSuccessMessage('Friend request sent successfully.');
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       if (error.response) {
         console.error('API Error:', error.response.data);
         if (error.response.status === 409) {
-          setSuccessMessage('User is already on your friends list!');
+          setSuccessMessage(error.response.data?.error || 'Request already pending or friendship already exists.');
+          setTimeout(() => setSuccessMessage(''), 3000);
+          return;
+        }
+        if (error.response.status === 429) {
+          setSuccessMessage(error.response.data?.error || 'You cannot re-add this user yet.');
           setTimeout(() => setSuccessMessage(''), 3000);
           return;
         }
